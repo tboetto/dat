@@ -1,0 +1,20 @@
+#!/bin/sh
+
+xrdb ${XDG_CONFIG_HOME:-$HOME/.config}/x11/xresources & xrdbpid=$! 
+
+monarr & xrandrpid=$!
+
+xwallpaper --zoom ~/wallpapers/aivasovsky.jpg &
+
+remaps 
+#remaps &
+
+## autostart="xcompmgr unclutter pipewire"
+autostart="unclutter pipewire"
+
+for program in $autostart; do
+  pidof -s "$program" || setsid -f "$program"
+done >/dev/null 2>&1
+
+[-n "$xrdbpid" ] && wait "$xrdbpid"
+[-n "$xrandrpid" ] && wait "$xrandrpid"
