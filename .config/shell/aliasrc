@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# sudo not requred for usual system commands
+for command in mount umount sv pacman updatedb su shutdown poweroff reboot ; do
+	alias $command="sudo $command"
+done; unset command
+
+alias \
+	cp="cp -iv" \
+	mv="mv -iv" \
+	mkd="mkdir -pv" \
+
+alias \ \
+  config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME' \
+	ls="ls -hN --color=auto --group-directories-first" \
+	grep="grep --color=auto" \
+	diff="diff --color=auto" \
+	ccat="highlight --out-format=ansi" \
+	ip="ip -color=auto" \
+
+alias \
+	g="git" \
+	v="nvim" \
+  trem="transmission-remote" \
+  tmux="tmux -f ~/.tmux.conf" \
+  ts="tmux new-session -s" \
+  tksv="tmux kill-server" \
+  ta="tmux attach -t" \
+  tls="tmux ls" \
+  vrc="nvim $HOME/.config/nvim/init.vim" \
+  zrc="nvim $ZDOTDIR/.zshrc" \
+  arc="nvim $HOME/.config/shell/aliasrc" \
+  gpa="git apply --reject --whitespace=fix" \
+  magit="nvim -c MagitOnly" \
