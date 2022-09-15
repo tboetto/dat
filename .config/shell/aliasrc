@@ -27,6 +27,8 @@ alias \
   tksv="tmux kill-server" \
   ta="tmux attach -t" \
   tls="tmux ls" \
+  pbcopy='xsel --clipboard --input' \
+  pbpaste='xsel --clipboard --output' \
   vrc="nvim $HOME/.config/nvim/init.vim" \
   zrc="nvim $ZDOTDIR/.zshrc" \
   arc="nvim $HOME/.config/shell/aliasrc" \
