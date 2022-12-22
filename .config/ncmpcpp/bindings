@@ -309,8 +309,8 @@
 #def_key "a"
 #  add_selected_items
 #
-#def_key "c"
-#  clear_playlist
+def_key "c"
+  clear_playlist
 #
 #def_key "c"
 #  clear_main_playlist

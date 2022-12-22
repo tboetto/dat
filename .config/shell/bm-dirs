@@ -1,1 +1,3 @@
 cool ${XDG_CACHE_HOME:-$HOME/cool}
+gfs ${XDG_CACHE_HOME:-$HOME/gfs}
+pics ${XDG_CACHE_HOME:-$HOME/pics}

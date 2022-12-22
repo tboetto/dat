@@ -12,11 +12,14 @@ alias \
 
 alias \ \
   config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME' \
+  configit='GIT_DIR=$HOME/.cfg GIT_WORK_TREE=$HOME nvim -c MagitOnly' \
+  vc='GIT_DIR=$HOME/.cfg GIT_WORK_TREE=$HOME nvim' \
 	ls="ls -hN --color=auto --group-directories-first" \
 	grep="grep --color=auto" \
 	diff="diff --color=auto" \
 	ccat="highlight --out-format=ansi" \
 	ip="ip -color=auto" \
+  lf="lfub" \
 
 alias \
 	g="git" \

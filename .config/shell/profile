@@ -4,7 +4,7 @@ export PATH="$PATH:${$(find ~/.local/bin -type d -printf %p:)%%:}"
 
 # Default programs:
 export EDITOR="nvim"
-export TERMINAL="st"
+export TERMINAL="st-luke-git"
 export BROWSER="brave"
 
 
