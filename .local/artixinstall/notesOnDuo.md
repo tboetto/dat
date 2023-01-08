@@ -38,3 +38,27 @@ Server = https://ftp.crifo.org/artix-universe/
 ```
 %wheel ALL=(ALL:ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/pacman -Syyuw --noconfirm,/usr/bin/pacman -S -u -y --config /etc/pacman.conf --,/usr/bin/pacman -S -y -u --config /etc/pacman.conf --
 ```
+
+### Install early
+```
+pacman -S xorg-server xorg-xinit dmenu brave-bin noto-fonts noto-fonts-emoji ttf-sarasa-gothic ttf-iosevka-nerd pipewire, arandr, xcompmgr, xwallpaper, mpd-openrc, mpc, pamixer, mpv, xcape, nvidia-dkms, unclutter,
+```
+
+### Save lvm install from boot driver
+```
+cryptsetup luksOpen /dev/nvme0n1p5 lvm-system
+pvscan
+vgscan
+vgchange -a y
+lvscan
+swapon /dev/lvmSystem/volSwap
+mount /dev/lvmSystem/volRoot /mnt
+artix-chroot /mnt /bin/bash # formerly artools-chroot
+
+exit
+
+umount -R /mnt
+swapoff -a
+
+reboot
+```
