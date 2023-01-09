@@ -1,15 +1,45 @@
 `pacman -Sy`
+`rc-service sshd start`
+
+`ip a`
+`ssh root@192.168.1.192`
+
+`v ~/.ssh/known_hosts.old`
+
 `pacman -S gptfdisk parted`
 
 
 end sector of last windows partition
 `parted /dev/sda 'unit s print'`
 
-basestrap -i
+`cgdisk /dev/nvme0n1`
+`512Mib`
+`  `
+
+`parted -s /dev/nvme0n1 set 6 lvm on`
+`cryptsetup luksOpen /dev/nvme0n1p6 lvm-system`
+`pvcreate /dev/mapper/lvm-system`
+`vgcreate lvmSystem /dev/mapper/lvm-system`
+`lvcreate -L 64G lvmSystem -n volSwap`
+`lvcreate -l +100%FREE lvmSystem -n volRoot`
+`mkswap /dev/lvmSystem/volSwap`
+`mkfs.ext4 -L volRoot /dev/lvmSystem/volRoot`
+`mkfs.ext4 /dev/nvme0n1p5`
+`mount /dev/lvmSystem/volRoot /mnt`
+`swapon /dev/lvmSystem/volSwap`
+`mkdir -p /mnt/boot/efi`
+`mount /dev/nvme0n1p1 /mnt/boot/efi/`
+
+
+`basestrap -i /mnt base base-devel openrc`
 - to choose open-rc
+`basestrap /mnt linux-firmware linux linux-headers neovim openssh openssh-openrc networkmanager cryptsetup lvm2 git`
 
 update HOOKS in mkinitcpio.conf to
-`HOOKS=(base udev autodetect keyboard modconf block encrypt filesystems fsck)`
+`HOOKS=(base udev autodetect keyboard modconf kms keymap consolefont block encrypt lvm2 resume filesystems fsck)`
+
+`pacman -S grub efibootmgr`
+`pacman -S dosfstools freetype2 fuse2 gptfdisk libisoburn mtools os-prober`
 
 hibernation UUID finder grub
 `blkid -s UUID -o value /dev/lvmSystem/volSwap`
@@ -19,6 +49,7 @@ keyfilepath reference:
 
 grub-install
 `grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=artix --recheck /dev/nvme0n1`
+
 
 ### Arch repo support
 add this to `/etc/pacman.conf`
@@ -51,14 +82,11 @@ pvscan
 vgscan
 vgchange -a y
 lvscan
-swapon /dev/lvmSystem/volSwap
 mount /dev/lvmSystem/volRoot /mnt
+# mount /dev/nvme0n1p1 /mnt/boot/efi
 artix-chroot /mnt /bin/bash # formerly artools-chroot
 
 exit
-
 umount -R /mnt
-swapoff -a
-
 reboot
 ```
