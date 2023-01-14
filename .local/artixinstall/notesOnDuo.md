@@ -91,7 +91,7 @@ Server = https://ftp.crifo.org/artix-universe/
 
 ### Install early
 ```
-pacman -S xorg-server xorg-xinit dmenu brave-bin noto-fonts noto-fonts-emoji ttf-sarasa-gothic ttf-iosevka-nerd pipewire, arandr, xcompmgr, xwallpaper, mpd-openrc, mpc, pamixer, mpv, xcape, nvidia-dkms, unclutter,
+sudo pacman -S xorg-server xorg-xinit dmenu brave-bin noto-fonts noto-fonts-emoji ttf-sarasa-gothic ttf-iosevka-nerd pipewire arandr xcompmgr xwallpaper mpd-openrc mpc pamixer mpv xcape nvidia unclutter
 ```
 
 ### Save lvm install from boot driver
