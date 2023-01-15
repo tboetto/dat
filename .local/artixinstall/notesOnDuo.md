@@ -109,3 +109,13 @@ exit
 umount -R /mnt
 reboot
 ```
+
+##### Vimium settings
+```
+map J goBack
+map K goForward
+map H previousTab
+map L nextTab
+map d removeTab
+map D restoreTab
+```
