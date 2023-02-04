@@ -1,20 +1,16 @@
 #!/bin/sh
 
-xrdb ${XDG_CONFIG_HOME:-$HOME/.config}/x11/xresources & xrdbpid=$! 
+xrandr --dpi 220
 
-monarr & xrandrpid=$!
+xwallpaper --zoom ~/Pictures/wallpapers/ghibliesque.jpg &
 
-xwallpaper --zoom ~/wallpapers/aivasovsky.jpg &
+pipewire &
 
-remaps &
+monarr &
 
-autostart="mpd xcompmgr unclutter pipewire"
+autostart="xcompmgr dunst unclutter"
 
 for program in $autostart; do
-  pidof -s "$program" || setsid -f "$program"
+	pidof -s "$program" || "$program" &
 done >/dev/null 2>&1
 
-pamixer --sink 0 &
-
-[-n "$xrdbpid" ] && wait "$xrdbpid"
-[-n "$xrandrpid" ] && wait "$xrandrpid"

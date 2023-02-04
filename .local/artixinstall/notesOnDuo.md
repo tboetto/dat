@@ -109,3 +109,8 @@ exit
 umount -R /mnt
 reboot
 ```
+
+### Add these to default
+```
+sudo rc-update add ntpd default
+```
