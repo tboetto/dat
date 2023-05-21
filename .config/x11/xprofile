@@ -8,7 +8,7 @@ pipewire &
 
 monarr &
 
-autostart="xcompmgr dunst unclutter"
+autostart="mpd xcompmgr dunst unclutter"
 
 for program in $autostart; do
 	pidof -s "$program" || "$program" &

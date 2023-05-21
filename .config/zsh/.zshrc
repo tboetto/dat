@@ -60,6 +60,7 @@ autoload -U url-quote-magic bracketed-paste-magic
 zle -N self-insert url-quote-magic
 zle -N bracketed-paste bracketed-paste-magic
 
+export HISTFILE="${XDG_CONFIG_HOME:-$HOME}/.zsh_history"
 # export PYENV_ROOT="$HOME/.pyenv"
 # export PATH="$PYENV_ROOT/bin:$PATH"
 source $TOOLS/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh

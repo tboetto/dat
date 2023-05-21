@@ -94,6 +94,8 @@ Server = https://ftp.crifo.org/artix-universe/
 sudo pacman -S xorg-server xorg-xinit dmenu brave-bin noto-fonts noto-fonts-emoji ttf-sarasa-gothic ttf-iosevka-nerd pipewire arandr xcompmgr xwallpaper mpd-openrc mpc pamixer mpv xcape nvidia unclutter
 ```
 
++ `xclip`
+
 ### Save lvm install from boot driver
 ```
 cryptsetup luksOpen /dev/nvme0n1p5 lvm-system
@@ -114,3 +116,34 @@ reboot
 ```
 sudo rc-update add ntpd default
 ```
+
+## Helpful commands
+Run this after updating your `.config/Xresources`:
+```
+!xrdb .config/Xresources
+```
+
+### suckless apps
+
+- config.def.h is an example config, config.h is your actual config
+- apply a patch with:
+`git apply --reject --whitespace=fix`
+- after applying a patch run:
+```
+make
+sudo make install
+```
+
+### printer
+[driver](https://aur.archlinux.org/packages/brother-hl-l2380dw)
+
+```
+pacman -S cups cups-openrc
+sudo rc-service cupsd start
+sudo rc-update add cupsd default
+```
+1) Install this package
+2) In CUPS, add a new lpd printer using a path such as the following, with the printer's ip address: lpd://xxxx.xxx.xxx.xxx/queue 
+3) Select the ppd from /opt/brother/Printers/HLL2380DW/cupswrapper/brother-HLL2380DW-cups-en.ppd
+
+
