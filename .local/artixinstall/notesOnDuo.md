@@ -133,7 +133,6 @@ Run this after updating your `.config/Xresources`:
 make
 sudo make install
 ```
-
 ### printer
 [driver](https://aur.archlinux.org/packages/brother-hl-l2380dw)
 
@@ -146,4 +145,12 @@ sudo rc-update add cupsd default
 2) In CUPS, add a new lpd printer using a path such as the following, with the printer's ip address: lpd://xxxx.xxx.xxx.xxx/queue 
 3) Select the ppd from /opt/brother/Printers/HLL2380DW/cupswrapper/brother-HLL2380DW-cups-en.ppd
 
-
+##### Vimium settings
+```
+map J goBack
+map K goForward
+map H previousTab
+map L nextTab
+map d removeTab
+map D restoreTab
+```
