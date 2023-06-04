@@ -35,5 +35,7 @@ alias \
   vrc="nvim $HOME/.config/nvim/init.vim" \
   zrc="nvim $ZDOTDIR/.zshrc" \
   arc="nvim $HOME/.config/shell/aliasrc" \
+  axic="nvim $HOME/.local/artixinstall/notesOnDuo.md" \
+  pxic="nvim $HOME/.local/artixinstall/pacs.csv" \
   gpa="git apply --reject --whitespace=fix" \
   magit="nvim -c MagitOnly" \

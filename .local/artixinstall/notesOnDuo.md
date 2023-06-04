@@ -58,6 +58,13 @@ update HOOKS in mkinitcpio.conf to
 `pacman -S grub efibootmgr`
 `pacman -S dosfstools freetype2 fuse2 gptfdisk libisoburn mtools os-prober`
 
+for nvidia optimus laptop
+- update MODULES in mkinitcpio.conf to
+    `MODULES(nvidia nvidia_modeset nvidia_uvm nvidia_drm)`
+
+- append to end of GRUB_CMDLINE_LINUX_DEFAULT in /etc/default/grub
+    `acpi_osi=Linux acpi_backlight=video`
+
 hibernation UUID finder grub
 `blkid -s UUID -o value /dev/lvmSystem/volSwap`
 
@@ -115,6 +122,16 @@ reboot
 ### Add these to default
 ```
 sudo rc-update add ntpd default
+```
+
+### ntp-client init script update (wireless useful)
+```
+depend() {
+    before cron portmap
+-   after net
++   need net
+    use dns logger
+}
 ```
 
 ## Helpful commands
