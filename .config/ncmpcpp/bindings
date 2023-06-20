@@ -213,9 +213,6 @@
 #def_key "#"
 #  toggle_bitrate_visibility
 #
-#def_key "Z"
-#  shuffle
-#
 #def_key "x"
 #  toggle_crossfade
 #
@@ -489,5 +486,8 @@ def_key ">"
   next
 def_key "<"
   previous
+def_key "Z"
+  shuffle
+
 
 

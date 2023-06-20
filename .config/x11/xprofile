@@ -2,7 +2,7 @@
 
 xrandr --dpi 220
 
-xwallpaper --zoom ~/Pictures/wallpapers/ghibliesque.jpg &
+xwallpaper --zoom $HOME/.local/share/bg/papes/scififuture/toruscutaway.jpg &
 
 pipewire &
 
