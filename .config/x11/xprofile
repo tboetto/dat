@@ -1,6 +1,8 @@
 #!/bin/sh
 
-xrandr --dpi 220
+xrandr --dpi 220 &
+
+dwmblocks &
 
 xwallpaper --zoom $HOME/.local/share/bg/papes/scififuture/toruscutaway.jpg &
 
@@ -13,7 +15,5 @@ autostart="mpd xcompmgr dunst unclutter"
 for program in $autostart; do
 	pidof -s "$program" || "$program" &
 done >/dev/null 2>&1
-
-dwmblocks &
 
 pkill -SIGUSR1 dwmblocks
