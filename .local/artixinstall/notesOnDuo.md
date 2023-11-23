@@ -171,3 +171,23 @@ map L nextTab
 map d removeTab
 map D restoreTab
 ```
+
+#### Opera settings
+`sudo nvim /etc/opera/default` conf file
+```
+OPERA_FLAGS="
+--force-device-scale-factor=2.5
+"
+
+#### Keyboard mapping
+Layer 0 = Linux / Windows
+  - mods: Menu,LGui,LAlt,space,RAlt,RGui.  Caps = Ctrl if held & Escape if pressed
+Layer 2 = MacOS
+  - mods: Menu,LAlt,LCtrl,space,RAlt,RGui.  Caps = LGui if held & Escape if pressed
+Layer 1 = Numpad 0 -> go to layer 0, Numpad 2 -> go to layer 2
+Temporarily go to layer 1 by holding right function key on layer 0/2
+```
+sudo dfu-programmer atmega32u4 erase --force
+sudo dfu-programmer atmega32u4 flash .config/kbds/fc980c.hex
+sudo dfu-programmer atmega32u4 reset
+```
