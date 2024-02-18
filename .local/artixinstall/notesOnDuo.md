@@ -104,7 +104,7 @@ sudo pacman -S xorg-server xorg-xinit dmenu brave-bin noto-fonts noto-fonts-emoj
 + `xclip`
 
 ### Save lvm install from boot driver
-```
+```bash
 cryptsetup luksOpen /dev/nvme0n1p5 lvm-system
 pvscan
 vgscan
@@ -120,7 +120,7 @@ reboot
 ```
 
 ### Add these to default
-```
+```bash
 sudo rc-update add ntpd default
 ```
 
@@ -136,7 +136,7 @@ depend() {
 
 ## Helpful commands
 Run this after updating your `.config/Xresources`:
-```
+```config
 !xrdb .config/Xresources
 ```
 
@@ -146,14 +146,14 @@ Run this after updating your `.config/Xresources`:
 - apply a patch with:
 `git apply --reject --whitespace=fix`
 - after applying a patch run:
-```
+```bash
 make
 sudo make install
 ```
 ### printer
 [driver](https://aur.archlinux.org/packages/brother-hl-l2380dw)
 
-```
+```bash
 pacman -S cups cups-openrc
 sudo rc-service cupsd start
 sudo rc-update add cupsd default
@@ -173,11 +173,12 @@ map D restoreTab
 ```
 
 #### Opera settings
-`sudo nvim /etc/opera/default` conf file
+`sudo nvim /etc/opera/default` conf file`
 ```
 OPERA_FLAGS="
 --force-device-scale-factor=2.5
 "
+```
 
 #### Keyboard mapping
 Layer 0 = Linux / Windows
@@ -186,8 +187,13 @@ Layer 2 = MacOS
   - mods: Menu,LAlt,LCtrl,space,RAlt,RGui.  Caps = LGui if held & Escape if pressed
 Layer 1 = Numpad 0 -> go to layer 0, Numpad 2 -> go to layer 2
 Temporarily go to layer 1 by holding right function key on layer 0/2
-```
+```bash
 sudo dfu-programmer atmega32u4 erase --force
 sudo dfu-programmer atmega32u4 flash .config/kbds/fc980c.hex
 sudo dfu-programmer atmega32u4 reset
+```
+
+#### vim shortcuts
+```lua
+vim.keymap.set("n", "<leader>gs", vim.cmd.Git);
 ```

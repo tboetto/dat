@@ -61,6 +61,9 @@ zle -N self-insert url-quote-magic
 zle -N bracketed-paste bracketed-paste-magic
 
 export HISTFILE="${XDG_CONFIG_HOME:-$HOME}/.zsh_history"
+HISTSIZE=10000
+SAVEHIST=1000
+setopt SHARE_HISTORY
 # export PYENV_ROOT="$HOME/.pyenv"
 # export PATH="$PYENV_ROOT/bin:$PATH"
 source $TOOLS/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh

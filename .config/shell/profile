@@ -1,10 +1,13 @@
 #!/bin/zsh
 
-export PATH="$PATH:${$(find ~/.local/bin -type d -printf %p:)%%:}"
+export PYENV_ROOT="$HOME/.pyenv"
+export GOPATH="$HOME/.local/src/go"
+export PATH="$PYENV_ROOT/bin:$PATH:${$(find ~/.local/bin -type d -printf %p:)%%:}:$GOPATH/bin"
+eval "$(pyenv init --path)"
 
 # Default programs:
 export EDITOR="nvim"
-export TERMINAL="st-luke-git"
+export TERMINAL="st"
 export BROWSER="brave"
 
 

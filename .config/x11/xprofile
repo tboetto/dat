@@ -4,11 +4,11 @@ xrandr --dpi 220 &
 
 dwmblocks &
 
-xwallpaper --zoom $HOME/.local/share/bg/papes/scififuture/toruscutaway.jpg &
+rbg &
 
 pipewire &
 
-monarr &
+trimonarr &
 
 autostart="mpd xcompmgr dunst unclutter"
 

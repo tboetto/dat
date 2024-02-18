@@ -10,7 +10,7 @@ alias \
 	mv="mv -iv" \
 	mkd="mkdir -pv" \
 
-alias \ \
+alias \
   	config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME' \
   	configit='GIT_DIR=$HOME/.cfg GIT_WORK_TREE=$HOME nvim -c MagitOnly' \
   	vc='GIT_DIR=$HOME/.cfg GIT_WORK_TREE=$HOME nvim' \
@@ -32,7 +32,7 @@ alias \
 	tls="tmux ls" \
 	pbcopy='xsel --clipboard --input' \
 	pbpaste='xsel --clipboard --output' \
-	vrc="nvim $HOME/.config/nvim/init.vim" \
+	vrc="nvim $HOME/.config/nvim" \
 	zrc="nvim $ZDOTDIR/.zshrc" \
 	arc="nvim $HOME/.config/shell/aliasrc" \
 	axic="nvim $HOME/.local/artixinstall/notesOnDuo.md" \
