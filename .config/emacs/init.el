@@ -48,11 +48,9 @@
 (elpaca-wait)
 
 (use-package emacs
-  :elpaca nil
   :ensure nil
   :config
-  ;; Disabled package.el to allow elpaca to play nice
-  (setq package-enable-at-startup nil)
+
 
   (setq ring-bell-function #'ignore)
   (setq inhibit-startup-message t)
