@@ -121,30 +121,6 @@
   :config (which-key-mode))
 (use-package undo-fu)
 ;;; Vim Bindings
-(use-package evil
-  :demand t
-  :bind (("<escape>" . keyboard-escape-quit))
-  :init
-  ;; allows for using cgn
-  ;; (setq evil-search-module 'evil-search)
-  (setq evil-want-keybinding nil)
-  ;; no vim insert bindings
-  (setq evil-undo-system 'undo-fu)
-  :config
-  (evil-mode 1))
-
-;;; Vim Bindings Everywhere else
-(use-package evil-collection
-  :after evil
-  :config
-  (setq evil-want-integration t)
-  (evil-collection-init))
-
-(use-package evil-surround
-  :ensure t
-  :config
-  (global-evil-surround-mode 1))
-  
 (use-package doom-themes
   :config
   ;; Global settings (defaults)
@@ -170,9 +146,6 @@
   :ensure t
   :init (doom-modeline-mode 1))
 
-(use-package hydra)
-(use-package use-package-hydra)
-(use-package general)
 (use-package textsize
    :custom (textsize-default-points (if (eq system-type 'darwin) 2 4))
    :commands textsize-mode
@@ -403,5 +376,4 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-(use-package magit
-  :ensure t)
+(use-package magit)
