@@ -67,10 +67,10 @@
 )
 
 (use-package which-key
+  :ensure t
   :config (which-key-mode))
-(use-package undo-fu)
-;;; Vim Bindings
 (use-package doom-themes
+  :ensure t
   :config
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -88,6 +88,7 @@
   (doom-themes-org-config))
 
 (use-package solaire-mode
+  :ensure t
   :config
   (solaire-global-mode +1))
 
@@ -96,6 +97,7 @@
   :init (doom-modeline-mode 1))
 
 (use-package textsize
+   :ensure t
    :custom (textsize-default-points (if (eq system-type 'darwin) 2 4))
    :commands textsize-mode
    :init (textsize-mode))
@@ -119,6 +121,7 @@
 
 ;; Enable vertico
 (use-package vertico
+  :ensure t
   :init
   (vertico-mode)
   :bind (:map vertico-map
@@ -140,6 +143,7 @@
 
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
+  :ensure t
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
   ;; available in the *Completions* buffer, add it to the
   ;; `completion-list-mode-map'.
@@ -155,6 +159,7 @@
   (marginalia-mode))
 
 (use-package orderless
+  :ensure t
   :init
   ;; Configure a custom style dispatcher (see the Consult wiki)
   ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
@@ -165,6 +170,7 @@
 
 ;; Example configuration for Consult
 (use-package consult
+  :ensure t
   ;; Replace bindings. Lazily loaded due by `use-package'.
   :bind (;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
@@ -319,7 +325,9 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-(use-package magit)
+(use-package 
+  :ensure t
+  magit)
 
 (defun meow-setup ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
@@ -408,6 +416,7 @@
    '("<escape>" . ignore)))
 
 (use-package meow
+  :ensure t
   :config
   (meow-global-mode 1)
   (meow-setup))
