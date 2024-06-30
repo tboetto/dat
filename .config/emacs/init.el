@@ -1,3 +1,10 @@
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
+;; and `package-pinned-packages`. Most users will not need or want to do this.
+;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
+
 (use-package emacs
   :ensure nil
   :config
@@ -96,7 +103,7 @@
 
 (use-package textsize
    :ensure t
-   :custom (textsize-default-points (if (eq system-type 'darwin) 2 4))
+   :custom (textsize-default-points (if (eq system-type 'darwin) 4 8))
    :commands textsize-mode
    :init (textsize-mode))
 ;;   :general (:prefix my-leader "t" 'my-hydra-textsize/body)
@@ -323,6 +330,5 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
-(use-package 
-  :ensure t
-  magit)
+(use-package magit
+  :ensure t)
