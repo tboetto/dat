@@ -1,58 +1,20 @@
-;; Set up elpaca
-(defvar elpaca-installer-version 0.7)
-(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil :depth 1
-                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                              :build (:not elpaca--activate-package)))
-(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-       (build (expand-file-name "elpaca/" elpaca-builds-directory))
-       (order (cdr elpaca-order))
-       (default-directory repo))
-  (add-to-list 'load-path (if (file-exists-p build) build repo))
-  (unless (file-exists-p repo)
-    (make-directory repo t)
-    (when (< emacs-major-version 28) (require 'subr-x))
-    (condition-case-unless-debug err
-        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                 ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                 ,@(when-let ((depth (plist-get order :depth)))
-                                                     (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                 ,(plist-get order :repo) ,repo))))
-                 ((zerop (call-process "git" nil buffer t "checkout"
-                                       (or (plist-get order :ref) "--"))))
-                 (emacs (concat invocation-directory invocation-name))
-                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                 ((require 'elpaca))
-                 ((elpaca-generate-autoloads "elpaca" repo)))
-            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-          (error "%s" (with-current-buffer buffer (buffer-string))))
-      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-  (unless (require 'elpaca-autoloads nil t)
-    (require 'elpaca)
-    (elpaca-generate-autoloads "elpaca" repo)
-    (load "./elpaca-autoloads")))
-(add-hook 'after-init-hook #'elpaca-process-queues)
-(elpaca `(,@elpaca-order))
-
-;; Set up elpaca-use-package
-;; Install use-package support
-(elpaca elpaca-use-package
-  ;; Enable :elpaca use-package keyword.
-  (elpaca-use-package-mode)
-  ;; Assume :elpaca t unless otherwise specified.
-  (setq elpaca-use-package-by-default t))
-
-;; Block until current queue processed.
-(elpaca-wait)
+(require 'package)D
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
+;; and `package-pinned-packages`. Most users will not need or want to do this.
+;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
 
 (use-package emacs
   :ensure nil
   :config
 
+  (set-face-attribute 'default nil
+		      :family "Iosevka Nerd Font Mono"
+		      :weight 'regular)
+  (set-face-attribute 'line-number-current-line nil
+		      :family "Iosevka Nerd Font Mono"
+		      :weight 'light)
 
   (setq ring-bell-function #'ignore)
   (setq inhibit-startup-message t)
@@ -71,9 +33,7 @@
     (define-key key-translation-map [menu] 'event-apply-hyper-modifier) ;H-
     ;;(define-key key-translation-map [apps] 'event-apply-hyper-modifier)
     
-    ;; by default, Emacs bind <menu> to execute-extended-command (same as M-x)
-    ;; now <menu> defined as 'hyper, we need to press <menu> twice to get <H-menu>
-    (global-set-key (kbd "<H-menu>") 'execute-extended-command)
+    ;; by default, Emacs bind <menu> to execute-extended-command (same as M-x) now <menu> defined as 'hyper, we need to press <menu> twice to get <H-menu> (global-set-key (kbd "<H-menu>") 'execute-extended-command)
     )
 
   (enable-hyper-super-modifiers-linux-x)
@@ -118,9 +78,8 @@
 )
 
 (use-package which-key
+  :ensure t
   :config (which-key-mode))
-(use-package doom-themes
-  :config
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
@@ -137,6 +96,7 @@
   (doom-themes-org-config))
 
 (use-package solaire-mode
+  :ensure t
   :config
   (solaire-global-mode +1))
 
@@ -145,7 +105,8 @@
   :init (doom-modeline-mode 1))
 
 (use-package textsize
-   :custom (textsize-default-points (if (eq system-type 'darwin) 24 28))
+   :ensure t
+   :custom (textsize-default-points (if (eq system-type 'darwin) 10 14))
    :commands textsize-mode
    :init (textsize-mode))
 ;;   :custom (textsize-default-points (if (eq system-type 'darwin) 2 4))
@@ -169,6 +130,7 @@
 
 ;; Enable vertico
 (use-package vertico
+  :ensure t
   :init
   (vertico-mode)
   :bind (:map vertico-map
@@ -188,14 +150,9 @@
   ;; (setq vertico-cycle t)
   )
 
-;; Persist history over Emacs restarts. Vertico sorts by history position.
-;;(use-package savehist
-;;  :elpaca nil
-;;  :init
-;;  (savehist-mode))
-
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
+  :ensure t
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
   ;; available in the *Completions* buffer, add it to the
   ;; `completion-list-mode-map'.
@@ -211,6 +168,7 @@
   (marginalia-mode))
 
 (use-package orderless
+  :ensure t
   :init
   ;; Configure a custom style dispatcher (see the Consult wiki)
   ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
@@ -221,6 +179,7 @@
 
 ;; Example configuration for Consult
 (use-package consult
+  :ensure t
   ;; Replace bindings. Lazily loaded due by `use-package'.
   :bind (;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
