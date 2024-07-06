@@ -119,11 +119,12 @@
   :init (textsize-mode)
   :config (textsize-fix-frame)
   (customize-set-variable 'textsize-monitor-size-thresholds
-                          '((0 . 0) (400 . 5) (800 . 2)))
-  (customize-set-variable 'textsize-pixel-pitch-thresholds
                           '((0 . 0)))
+  (customize-set-variable 'textsize-pixel-pitch-thresholds
+                          '((0 . 20) (0.9 . 10) (0.12 . 0) (0.18 . -6) (0.25 . -9)))
   )
 
+;; stole this from jmccarrell
 (defun tb/dump-frame-textsize-metrics ()
   "Dump selected frame metrics from the currently selected frame to the *Message* buffer.
 Intended to be helpful for debugging the choices textsize makes for a given monitor/display."
