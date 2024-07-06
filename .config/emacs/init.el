@@ -1,4 +1,4 @@
-(require 'package)D
+(require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 ;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
 ;; and `package-pinned-packages`. Most users will not need or want to do this.
@@ -80,6 +80,9 @@
 (use-package which-key
   :ensure t
   :config (which-key-mode))
+(use-package doom-themes
+  :ensure t
+  :config
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
@@ -104,11 +107,30 @@
   :ensure t
   :init (doom-modeline-mode 1))
 
+;; (use-package default-text-scale
+;; 	     :ensure t
+;; 	     :config (default-text-scale-mode)
+;; 	     ;;(if *is-wsl* (default-text-scale-increment 20))
+;;              ;;(if *is-wsl* (default-text-scale-increment 45))
+;; )
+
 (use-package textsize
-   :ensure t
-   :custom (textsize-default-points (if (eq system-type 'darwin) 10 14))
-   :commands textsize-mode
-   :init (textsize-mode))
+  :defer nil
+  :ensure t
+  :custom (textsize-default-points 32)
+  :config (textsize-fix-frame)
+  ;;:general
+  ;;("s-=" 'textsize-increment)
+  ;;("s-+" 'textsize-increment)
+  ;;("s--" 'textsize-decrement)
+  ;;("s-0" 'textsize-reset)
+  )
+
+;;(use-package textsize
+;;   :ensure t
+;;;; :custom (textsize-default-points (if (eq system-type 'darwin) 10 14))
+;;   :commands textsize-mode
+;;   :init (textsize-mode))
 ;;   :custom (textsize-default-points (if (eq system-type 'darwin) 2 4))
 ;;   :general (:prefix my-leader "t" 'my-hydra-textsize/body)
 ;;            ("C-x t" nil)
