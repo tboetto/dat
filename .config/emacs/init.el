@@ -115,16 +115,41 @@
 ;; )
 
 (use-package textsize
-  :defer nil
   :ensure t
-  :custom (textsize-default-points 32)
+  :init (textsize-mode)
   :config (textsize-fix-frame)
-  ;;:general
-  ;;("s-=" 'textsize-increment)
-  ;;("s-+" 'textsize-increment)
-  ;;("s--" 'textsize-decrement)
-  ;;("s-0" 'textsize-reset)
+  (customize-set-variable 'textsize-monitor-size-thresholds
+                          '((0 . 0) (400 . 5) (800 . 2)))
+  (customize-set-variable 'textsize-pixel-pitch-thresholds
+                          '((0 . 0)))
   )
+
+(defun tb/dump-frame-textsize-metrics ()
+  "Dump selected frame metrics from the currently selected frame to the *Message* buffer.
+Intended to be helpful for debugging the choices textsize makes for a given monitor/display."
+  (interactive)
+  (let (f (selected-frame))
+    (message "emacs frame geometry: X Y WIDTH HEIGHT: %s" (frame-monitor-attribute 'geometry f))
+    (message "emacs monitor size WIDTH HEIGHT mm: %s" (frame-monitor-attribute 'mm-size f))
+    (message "textsize monitor size  mm: %d" (textsize--monitor-size-mm f))
+    (message "textsize monitor size pix: %d" (textsize--monitor-size-px f))
+    (message "pixel pitch %.02f" (textsize--pixel-pitch f))
+    (message "textsize default points %d" textsize-default-points)
+    (message "textsize frame offset %d"
+             (or (frame-parameter f 'textsize-manual-adjustment) 0))
+    (message "pixel pitch adjustment %d"
+             (textsize--threshold-offset textsize-pixel-pitch-thresholds
+                                         (textsize--pixel-pitch f)))
+    (message "monitor size adjustment %d"
+             (textsize--threshold-offset textsize-monitor-size-thresholds
+                                         (textsize--monitor-size-mm f)))
+    (message "text size chosen: %d" (textsize--point-size f))
+    (message "default-font: WIDTHxHEIGHT %dx%d" (default-font-width)(default-font-height))
+    (message "resultant text area in chars WIDTHxHEIGHT %dx%d"
+             (frame-width f)(frame-height f))
+    (message "default face font %s" (face-attribute 'default :font))
+    )
+  nil)
 
 ;;(use-package textsize
 ;;   :ensure t
