@@ -9,6 +9,12 @@
   :ensure nil
   :config
 
+  (set-face-attribute 'default nil
+		      :family "Iosevka Nerd Font Mono"
+		      :weight 'regular)
+  (set-face-attribute 'line-number-current-line nil
+		      :family "Iosevka Nerd Font Mono"
+		      :weight 'light)
 
   (setq ring-bell-function #'ignore)
   (setq inhibit-startup-message t)
@@ -103,7 +109,7 @@
 
 (use-package textsize
    :ensure t
-   :custom (textsize-default-points (if (eq system-type 'darwin) 4 8))
+   :custom (textsize-default-points (if (eq system-type 'darwin) 10 14))
    :commands textsize-mode
    :init (textsize-mode))
 ;;   :general (:prefix my-leader "t" 'my-hydra-textsize/body)
