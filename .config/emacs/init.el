@@ -9,12 +9,21 @@
   :ensure nil
   :config
 
-  (set-face-attribute 'default nil
-		      :family "Iosevka Nerd Font Mono"
-		      :weight 'regular)
-  (set-face-attribute 'line-number-current-line nil
-		      :family "Iosevka Nerd Font Mono"
-		      :weight 'light)
+  (add-hook 'window-setup-hook 'toggle-frame-maximized t)
+
+  (pcase system-type
+  	((or 'gnu/linux 'windows-nt 'cygwin)
+  	 (set-face-attribute 'default nil
+  	                     :family "Iosevka Nerd Font Mono"
+  	                     :weight 'regular))
+  	('darwin (set-face-attribute 'default nil :family "IosevkaTerm Nerd Font Mono" :weight 'regular)))
+
+;;  (set-face-attribute 'default nil
+;;		      :family "Iosevka Nerd Font Mono"
+;;		      :weight 'regular)
+;;  (set-face-attribute 'line-number-current-line nil
+;;		      :family "Iosevka Nerd Font Mono"
+;;		      :weight 'light)
 
   (setq ring-bell-function #'ignore)
   (setq inhibit-startup-message t)
@@ -107,22 +116,15 @@
   :ensure t
   :init (doom-modeline-mode 1))
 
-;; (use-package default-text-scale
-;; 	     :ensure t
-;; 	     :config (default-text-scale-mode)
-;; 	     ;;(if *is-wsl* (default-text-scale-increment 20))
-;;              ;;(if *is-wsl* (default-text-scale-increment 45))
-;; )
-
 (use-package textsize
   :ensure t
   :init (textsize-mode)
+  :custom (textsize-default-points (if (eq system-type 'darwin) 15 15))
   :config (textsize-fix-frame)
   (customize-set-variable 'textsize-monitor-size-thresholds
-                          '((0 . 0))
-			  )
+	'((0 . -3) (350 . 0) (500 . 3)(900 . 6)(1200 . 9)))
   (customize-set-variable 'textsize-pixel-pitch-thresholds
-                          '((0 . 20) (0.09 . 10) (0.12 . 0) (0.18 . -6) (0.25 . -9)))
+                          '((0 . 3) (0.12 . 0) (0.18 . -3) (0.25 . -6)))
   )
 
 ;; stole this from jmccarrell
