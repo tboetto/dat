@@ -119,9 +119,10 @@
   :init (textsize-mode)
   :config (textsize-fix-frame)
   (customize-set-variable 'textsize-monitor-size-thresholds
-                          '((0 . 0)))
+                          '((0 . 0))
+			  )
   (customize-set-variable 'textsize-pixel-pitch-thresholds
-                          '((0 . 20) (0.9 . 10) (0.12 . 0) (0.18 . -6) (0.25 . -9)))
+                          '((0 . 20) (0.09 . 10) (0.12 . 0) (0.18 . -6) (0.25 . -9)))
   )
 
 ;; stole this from jmccarrell
