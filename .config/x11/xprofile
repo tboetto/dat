@@ -12,13 +12,13 @@ rbg &
 
 pipewire &
 
-if [[ $ISLAPTOP ]]; then
+if $ISLAPTOP; then
 	remaps &
-elif [[ $ISDESKTOP ]]; then
+elif $ISDESKTOP; then
 	trimonarr &
 fi
 
-autostart="mpd xcompmgr dunst unclutter"
+autostart="xcompmgr dunst unclutter"
 
 for program in $autostart; do
 	pidof -s "$program" || "$program" &
