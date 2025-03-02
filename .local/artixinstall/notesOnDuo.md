@@ -197,3 +197,9 @@ sudo dfu-programmer atmega32u4 reset
 ```lua
 vim.keymap.set("n", "<leader>gs", vim.cmd.Git);
 ```
+
+### replace forbidden characters in directory recursively brackets parentheses, [DUB].mp4 => (DUB).mp4
+
+```bash
+find . -depth -execdir perl-rename 's/\[/\(/g; s/\]/\)/g; s/:/ - )/g' {} +
+```

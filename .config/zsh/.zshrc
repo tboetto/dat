@@ -6,10 +6,6 @@ PROMPT='%B%m%~%b$(git_super_status) %# '
 
 setopt autocd		# Automatically cd into typed directory.
 
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
-fi
-
 LFCD="$GOPATH/src/github.com/gokcehan/lf/etc/lfcd.sh"  # source
 LFCD="/home/tony/.config/lf/lfcd.sh"                                #  pre-built binary, make sure to use absolute path
 if [ -f "$LFCD" ]; then
@@ -24,47 +20,46 @@ compinit
 _comp_options+=(globdots)		# Include hidden files.
 
 # vi mode
-bindkey -v
+bindkey -e
 export KEYTIMEOUT=1
 
 # Use vim keys in tab complete menu:
-bindkey -M menuselect 'h' vi-backward-char
-bindkey -M menuselect 'k' vi-up-line-or-history
-bindkey -M menuselect 'l' vi-forward-char
-bindkey -M menuselect 'j' vi-down-line-or-history
-bindkey -v '^?' backward-delete-char
+ bindkey -M menuselect 'h' vi-backward-char
+ bindkey -M menuselect 'k' vi-up-line-or-history
+ bindkey -M menuselect 'l' vi-forward-char
+ bindkey -M menuselect 'j' vi-down-line-or-history
+ bindkey -v '^?' backward-delete-char
 
 
 # Change cursor shape for different vi modes.
-function zle-keymap-select {
-  if [[ ${KEYMAP} == vicmd ]] ||
-     [[ $1 = 'block' ]]; then
-    echo -ne '\e[1 q'
-  elif [[ ${KEYMAP} == main ]] ||
-       [[ ${KEYMAP} == viins ]] ||
-       [[ ${KEYMAP} = '' ]] ||
-       [[ $1 = 'beam' ]]; then
-    echo -ne '\e[5 q'
-  fi
-}
-zle -N zle-keymap-select
-zle-line-init() {
-    zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
-    echo -ne "\e[5 q"
-}
-zle -N zle-line-init
-echo -ne '\e[5 q' # Use beam shape cursor on startup.
-preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
-
-autoload -U url-quote-magic bracketed-paste-magic
-zle -N self-insert url-quote-magic
-zle -N bracketed-paste bracketed-paste-magic
+ function zle-keymap-select {
+   if [[ ${KEYMAP} == vicmd ]] ||
+      [[ $1 = 'block' ]]; then
+     echo -ne '\e[1 q'
+   elif [[ ${KEYMAP} == main ]] ||
+        [[ ${KEYMAP} == viins ]] ||
+        [[ ${KEYMAP} = '' ]] ||
+        [[ $1 = 'beam' ]]; then
+     echo -ne '\e[5 q'
+   fi
+ }
+ zle -N zle-keymap-select
+ zle-line-init() {
+     zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
+     echo -ne "\e[5 q"
+ }
+ zle -N zle-line-init
+ echo -ne '\e[5 q' # Use beam shape cursor on startup.
+ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
+ 
+ autoload -U url-quote-magic bracketed-paste-magic
+ zle -N self-insert url-quote-magic
+ zle -N bracketed-paste bracketed-paste-magic
 
 export HISTFILE="${XDG_CONFIG_HOME:-$HOME}/.zsh_history"
 HISTSIZE=10000
 SAVEHIST=1000
 setopt SHARE_HISTORY
-# export PYENV_ROOT="$HOME/.pyenv"
 # export PATH="$PYENV_ROOT/bin:$PATH"
 source $TOOLS/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 

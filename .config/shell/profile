@@ -1,9 +1,7 @@
 #!/bin/zsh
 
-export PYENV_ROOT="$HOME/.pyenv"
 export GOPATH="$HOME/.local/src/go"
-export PATH="$PYENV_ROOT/bin:$PATH:${$(find ~/.local/bin -type d -printf %p:)%%:}:$GOPATH/bin"
-eval "$(pyenv init --path)"
+export PATH="$PATH:${$(find ~/.local/bin -type d -printf %p:)%%:}:$GOPATH/bin"
 
 # Default programs:
 export EDITOR="nvim"

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+[[ $(hostname) == *"desktop"* ]] && ISDESKTOP=true || ISDESKTOP=false;
+[[ $(hostname) == *"laptop"* ]] && ISLAPTOP=true || ISLAPTOP=false;
+
 xrandr --auto &
 xrandr --dpi 220 &
 
@@ -9,7 +12,11 @@ rbg &
 
 pipewire &
 
-trimonarr &
+if [[ $ISLAPTOP ]]; then
+	remaps &
+elif [[ $ISDESKTOP ]]; then
+	trimonarr &
+fi
 
 autostart="mpd xcompmgr dunst unclutter"
 
