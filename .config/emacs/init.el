@@ -216,7 +216,7 @@
   :custom (textsize-default-points (if (eq system-type 'darwin) 15 15))
   :config (textsize-fix-frame)
   (customize-set-variable 'textsize-monitor-size-thresholds
-	'((0 . -3) (340 . 0) (500 . 3)(900 . 6)(1200 . 9)))
+	'((0 . -3) (340 . 0) (600 . 12)(900 . 6)(1200 . 9)))
   (customize-set-variable 'textsize-pixel-pitch-thresholds
                           '((0 . 15) (.09 . 3) (0.12 . 0) (0.18 . -3) (0.25 . -6))))
 

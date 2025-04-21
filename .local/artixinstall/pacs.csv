@@ -10,6 +10,7 @@ A,better-adb-sync-git,"rsync for android file transfer"
 ,xcompmgr,"composite manager for xorg"
 ,xorg-xinit,"allows for starting an xorg server"
 ,xorg-xbacklight,"control backlight of display" ,xwallpaper,"sets wallpaper in xorg"
+,xorg-xinput,"gives device id for remaps laptop scritp",
 ,zathura,"foss pdf package"
 ,wget,"download from url cli"
 ,nvidia-dkms,"dmks version of nvidia for linux-hardened"

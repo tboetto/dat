@@ -6,8 +6,8 @@ PROMPT='%B%m%~%b$(git_super_status) %# '
 
 setopt autocd		# Automatically cd into typed directory.
 
-LFCD="$GOPATH/src/github.com/gokcehan/lf/etc/lfcd.sh"  # source
-LFCD="/home/tony/.config/lf/lfcd.sh"                                #  pre-built binary, make sure to use absolute path
+LFCD="$GOPATH/src/github.com/gokcehan/lf/etc/lfcd.sh"  	# source
+LFCD="$HOME/.config/lf/lfcd.sh"                   	# pre-built binary, make sure to use absolute path
 if [ -f "$LFCD" ]; then
     source "$LFCD"
 fi
