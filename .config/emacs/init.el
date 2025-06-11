@@ -216,9 +216,9 @@
   :custom (textsize-default-points (if (eq system-type 'darwin) 15 15))
   :config (textsize-fix-frame)
   (customize-set-variable 'textsize-monitor-size-thresholds
-	'((0 . -3) (340 . 0) (600 . 12)(900 . 6)(1200 . 9)))
+	'((0 . -3) (340 . 0) (600 . -1)(900 . 6)(1200 . 9)))
   (customize-set-variable 'textsize-pixel-pitch-thresholds
-                          '((0 . 15) (.09 . 3) (0.12 . 0) (0.18 . -3) (0.25 . -6))))
+                          '((0 . 15) (.08 . 15) (0.11 . 0))))
 
 ;; stole this from jmccarrell
 (defun tb/dump-frame-textsize-metrics ()
@@ -480,3 +480,15 @@ Intended to be helpful for debugging the choices textsize makes for a given moni
 
 (use-package magit
   :ensure t)
+
+(use-package denote
+  :ensure t
+  :config
+  (setq denote-directory (expand-file-name "~/Documents/notes/"))
+  (setq denote-known-keywords '("emacs" "org-mode" "denote" "game-dev" "godot" "C" "lisp" "typescript" "javascript" "angular" "ngrx"))
+  )
+
+(use-package org-bullets
+  :ensure t
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))

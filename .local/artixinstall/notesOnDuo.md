@@ -203,3 +203,28 @@ vim.keymap.set("n", "<leader>gs", vim.cmd.Git);
 ```bash
 find . -depth -execdir perl-rename 's/\[/\(/g; s/\]/\)/g; s/:/ - )/g' {} +
 ```
+
+## mv items with glob
+[glob tool](https://www.digitalocean.com/community/tools/glob)
+
+### Example:
+```bash
+ls 23*[[:digit:]]*[[:digit:]]*Nick* 
+mv 23*[[:digit:]]*[[:digit:]]*Nick* ../../Scuffed\ Realtor/2023
+```
+
+## rsync
+
+### Example:
+```bash
+rsync -rva --dry-run videos mediaServer@192.168.3.22:/videos
+```
+
+## adbsync
+
+### Example
+- `Podcasts` is a folder in the root of the phone (sdcard/Podcasts)
+  - `/` is important at end of sdcard
+```bash
+adbsync push media/hdd1/Podcasts sdcard/
+```
