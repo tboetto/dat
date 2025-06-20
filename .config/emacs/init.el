@@ -86,6 +86,11 @@
   (setq enable-recursive-minibuffers t)
 )
 
+(use-package org-mode
+  :ensure nil
+  :config
+  (setq org-startup-indented t))
+
 (defun meow-setup ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
   (meow-motion-overwrite-define-key
