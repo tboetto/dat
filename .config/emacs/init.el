@@ -86,10 +86,22 @@
   (setq enable-recursive-minibuffers t)
 )
 
-(use-package org-mode
+(use-package org
+  :ensure nil
+  :init
+  (setq org-directory (expand-file-name "~/Documents/org/"))
+  (setq org-imenu-depth 7)
+  :config
+  (setq org-startup-indented t)
+  )
+
+(use-package org-agenda
   :ensure nil
   :config
-  (setq org-startup-indented t))
+  (setq org-agenda-files (list org-directory)))
+
+(use-package project
+  :ensure nil)
 
 (defun meow-setup ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
@@ -253,31 +265,7 @@ Intended to be helpful for debugging the choices textsize makes for a given moni
     )
   nil)
 
-;;(use-package textsize
-;;   :ensure t
-;;;; :custom (textsize-default-points (if (eq system-type 'darwin) 10 14))
-;;   :commands textsize-mode
-;;   :init (textsize-mode))
-;;   :custom (textsize-default-points (if (eq system-type 'darwin) 2 4))
-;;   :general (:prefix my-leader "t" 'my-hydra-textsize/body)
-;;            ("C-x t" nil)
-;;   :hydra (my-hydra-textsize (:exit nil :foreign-keys warn )
-;;                          "
-;; ┌───────────────┐
-;; │ Text Size     │
-;; │───────────────│
-;; │ [_+_]: Increase │
-;; │ [_-_]: Decrease │
-;; │ [_r_]: Reset    │
-;; └───────────────┘
-;; "
-;;           ("+" textsize-increment )
-;;           ("-" textsize-decrement)
-;;           ("r" textsize-reset :color blue)
-;;           ("<escape>" nil)))
 
-
-;; Enable vertico
 (use-package vertico
   :ensure t
   :init
@@ -336,7 +324,7 @@ Intended to be helpful for debugging the choices textsize makes for a given moni
          ("C-c k" . consult-kmacro)
          ("C-c m" . consult-man)
          ("C-c i" . consult-info)
-         ([remap Info-search] . consult-info)
+ ([remap Info-search] . consult-info)
          ;; C-x bindings in `ctl-x-map'
          ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
          ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
@@ -489,8 +477,8 @@ Intended to be helpful for debugging the choices textsize makes for a given moni
 (use-package denote
   :ensure t
   :config
-  (setq denote-directory (expand-file-name "~/Documents/notes/"))
-  (setq denote-known-keywords '("emacs" "org-mode" "denote" "game-dev" "godot" "C" "lisp" "typescript" "javascript" "angular" "ngrx"))
+  (setq denote-directory (expand-file-name "~/Documents/org/denote"))
+  (setq denote-known-keywords '("emacs" "org mode" "denote" "game dev" "godot" "C" "lisp" "typescript" "javascript" "angular" "ngrx" "hand tools" "power tools" "offroading" "preparedness"))
   )
 
 (use-package org-bullets

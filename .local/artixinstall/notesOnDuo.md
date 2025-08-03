@@ -228,3 +228,10 @@ rsync -rva --dry-run videos mediaServer@192.168.3.22:/videos
 ```bash
 adbsync push media/hdd1/Podcasts sdcard/
 ```
+
+### Example 2
+
+```bash
+adbsync --dry-run push media/hdd1/Music/unreleased-kanye/ sdcard/Music/unreleased-kanye
+```
+- `/` is important at end of `unreleased-kanye`, this means it will sync the contents of `unreleased-kanye` on your PC into the folder `unreleased-kanye` on your android phone
