@@ -5,86 +5,76 @@
 ;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (package-initialize)
 
-(use-package emacs
-  :ensure nil
-  :config
+(add-hook 'window-setup-hook 'toggle-frame-maximized t)
 
-  (add-hook 'window-setup-hook 'toggle-frame-maximized t)
+(pcase system-type
+  ((or 'gnu/linux 'windows-nt 'cygwin)
+   (set-face-attribute 'default nil
+  	               :family "Iosevka Nerd Font Mono"
+  	               :weight 'regular))
+  ('darwin (set-face-attribute 'default nil :family "IosevkaTerm Nerd Font Mono" :weight 'regular)))
 
-  (pcase system-type
-  	((or 'gnu/linux 'windows-nt 'cygwin)
-  	 (set-face-attribute 'default nil
-  	                     :family "Iosevka Nerd Font Mono"
-  	                     :weight 'regular))
-  	('darwin (set-face-attribute 'default nil :family "IosevkaTerm Nerd Font Mono" :weight 'regular)))
+(setq ring-bell-function #'ignore)
+(setq inhibit-startup-message t)
+;; Turn off some unneeded UI elements
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
 
-;;  (set-face-attribute 'default nil
-;;		      :family "Iosevka Nerd Font Mono"
-;;		      :weight 'regular)
-;;  (set-face-attribute 'line-number-current-line nil
-;;		      :family "Iosevka Nerd Font Mono"
-;;		      :weight 'light)
+(global-display-line-numbers-mode 1)
 
-  (setq ring-bell-function #'ignore)
-  (setq inhibit-startup-message t)
-  
-  (setq custom-file (locate-user-emacs-file "custom-vars.el"))
-  (load custom-file 'noerror 'nomessage)
-  
-  (setq w32-pass-apps-to-system nil)
-  (setq w32-apps-modifier 'hyper)
-  
-  ;;(defconst my-leader (if (eq system-type 'darwin) "SPC" "SPC"))
-  (defun enable-hyper-super-modifiers-linux-x ()
-    ;; on nowadays linux, <windows> key is usually configured to Super
-    
-    ;; menu key as hyper (Note: for H-s, you need to release <menu> key before pressing 's')
-    (define-key key-translation-map [menu] 'event-apply-hyper-modifier) ;H-
-    ;;(define-key key-translation-map [apps] 'event-apply-hyper-modifier)
-    
-    ;; by default, Emacs bind <menu> to execute-extended-command (same as M-x) now <menu> defined as 'hyper, we need to press <menu> twice to get <H-menu> (global-set-key (kbd "<H-menu>") 'execute-extended-command)
-    )
+(hl-line-mode 1)
+(recentf-mode 1)
 
-  (enable-hyper-super-modifiers-linux-x)
+(setq history-length 25)
+(savehist-mode 1)
+(save-place-mode 1)
 
-  ;; Turn off some unneeded UI elements
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  
-  ;; Display line numbers in every buffer
-  (global-display-line-numbers-mode 1)
-  
-  (hl-line-mode 1)
-  (recentf-mode 1)
-  
-  (setq history-length 25)
-  (savehist-mode 1)
-  (save-place-mode 1)
-  
-  (global-auto-revert-mode 1)
-  (setq global-auto-revert-non-file-buffers t)
+(global-auto-revert-mode 1)
+(setq global-auto-revert-non-file-buffers t)
 
-  ;; Vertico settings
-  ;; Add prompt indicator to `completing-read-multiple'.
-  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
-  (defun crm-indicator (args)
-    (cons (format "[CRM%s] %s"
-                  (replace-regexp-in-string
-                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                   crm-separator)
-                  (car args))
-          (cdr args)))
-  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+;; Do not allow the cursor in the minibuffer prompt
+(setq minibuffer-prompt-properties
+      '(read-only t cursor-intangible t face minibuffer-prompt))
+(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-  ;; Do not allow the cursor in the minibuffer prompt
-  (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+;; Enable recursive minibuffers
+(setq enable-recursive-minibuffers t)
 
-  ;; Enable recursive minibuffers
-  (setq enable-recursive-minibuffers t)
-)
+
+(setq custom-file (locate-user-emacs-file "custom-vars.el"))
+(load custom-file 'noerror 'nomessage)
+
+(setq w32-pass-apps-to-system nil)
+(setq w32-apps-modifier 'hyper)
+
+;;(defconst my-leader (if (eq system-type 'darwin) "SPC" "SPC"))
+(defun enable-hyper-super-modifiers-linux-x ()
+  ;; on nowadays linux, <windows> key is usually configured to Super
+
+  ;; menu key as hyper (Note: for H-s, you need to release <menu> key before pressing 's')
+  (define-key key-translation-map [menu] 'event-apply-hyper-modifier) ;H-
+  ;;(define-key key-translation-map [apps] 'event-apply-hyper-modifier)
+
+  ;; by default, Emacs bind <menu> to execute-extended-command (same as M-x) now <menu> defined as 'hyper, we need to press <menu> twice to get <H-menu> (global-set-key (kbd "<H-menu>") 'execute-extended-command)
+  )
+
+(enable-hyper-super-modifiers-linux-x)
+
+
+
+;; Vertico settings
+;; Add prompt indicator to `completing-read-multiple'.
+;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+(defun crm-indicator (args)
+  (cons (format "[CRM%s] %s"
+                (replace-regexp-in-string
+                 "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                 crm-separator)
+                (car args))
+        (cdr args)))
+(advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
 
 (use-package org
   :ensure nil
@@ -194,7 +184,7 @@
   :config
   (meow-setup)
   (meow-global-mode 1)
-)
+  )
 
 (use-package which-key
   :ensure t
@@ -233,7 +223,7 @@
   :custom (textsize-default-points (if (eq system-type 'darwin) 15 15))
   :config (textsize-fix-frame)
   (customize-set-variable 'textsize-monitor-size-thresholds
-	'((0 . -3) (340 . 0) (600 . -1)(900 . 6)(1200 . 9)))
+			  '((0 . -3) (340 . 0) (600 . -1)(900 . 6)(1200 . 9)))
   (customize-set-variable 'textsize-pixel-pitch-thresholds
                           '((0 . 15) (.08 . 15) (0.11 . 0))))
 
@@ -294,7 +284,7 @@ Intended to be helpful for debugging the choices textsize makes for a given moni
   ;; available in the *Completions* buffer, add it to the
   ;; `completion-list-mode-map'.
   :bind (:map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
+              ("M-A" . marginalia-cycle))
 
   ;; The :init section is always executed.
   :init
@@ -324,7 +314,7 @@ Intended to be helpful for debugging the choices textsize makes for a given moni
          ("C-c k" . consult-kmacro)
          ("C-c m" . consult-man)
          ("C-c i" . consult-info)
- ([remap Info-search] . consult-info)
+	 ([remap Info-search] . consult-info)
          ;; C-x bindings in `ctl-x-map'
          ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
          ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
@@ -433,7 +423,7 @@ Intended to be helpful for debugging the choices textsize makes for a given moni
   ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
   ;;;; 5. No project support
   ;; (setq consult-project-function nil)
-)
+  )
 
 (use-package embark
   :ensure t
@@ -480,8 +470,3 @@ Intended to be helpful for debugging the choices textsize makes for a given moni
   (setq denote-directory (expand-file-name "~/Documents/org/denote"))
   (setq denote-known-keywords '("emacs" "org mode" "denote" "game dev" "godot" "C" "lisp" "typescript" "javascript" "angular" "ngrx" "hand tools" "power tools" "offroading" "preparedness"))
   )
-
-(use-package org-bullets
-  :ensure t
-  :config
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))

@@ -235,3 +235,9 @@ adbsync push media/hdd1/Podcasts sdcard/
 adbsync --dry-run push media/hdd1/Music/unreleased-kanye/ sdcard/Music/unreleased-kanye
 ```
 - `/` is important at end of `unreleased-kanye`, this means it will sync the contents of `unreleased-kanye` on your PC into the folder `unreleased-kanye` on your android phone
+
+### Example 3
+- Pull all mp4s to backupVids
+```bash
+adbsync --dry-run --exclude="*.jpg" pull sdcard/DCIM/Camera backupVids
+```

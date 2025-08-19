@@ -1,7 +1,10 @@
+
 #+property: header-args
 #+startup: content
 
-*  Find gcc and libgccjit packages to be used for emacs on macOS
+* ~early-init.el~
+
+**  Find gcc and libgccjit packages to be used for emacs on macOS
 
 #+begin_src emacs-lisp :tangle "early-init.el"
 (defun homebrew-gcc-paths ()
@@ -56,93 +59,116 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
   (setup-macos-native-comp-library-paths))
 #+end_src
 
-*  Initialize package repositories
+* ~init.el~
+
+**  Initialize package repositories
 
 #+begin_src emacs-lisp :tangle "init.el"
   (require 'package)
-  (add-to-list p'ackage-archives '("melpa" . "https://melpa.org/packages/") t)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
   ;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
   ;; and `package-pinned-packages`. Most users will not need or want to do this.
   ;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
   (package-initialize)
 #+end_src
 
-*  Basic emacs configuration
+**  Basic emacs configuration
+
+*** Start emacs maximized
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package emacs
-    :ensure nil
-    :config
+  (add-hook 'window-setup-hook 'toggle-frame-maximized t)
+#+end_src
 
-    (add-hook 'window-setup-hook 'toggle-frame-maximized t)
+*** Set font depending on OS
 
-    (pcase system-type
-      ((or 'gnu/linux 'windows-nt 'cygwin)
-       (set-face-attribute 'default nil
-    	                 :family "Iosevka Nerd Font Mono"
-    	                 :weight 'regular))
-      ('darwin (set-face-attribute 'default nil :family "IosevkaTerm Nerd Font Mono" :weight 'regular)))
+#+begin_src emacs-lisp :tangle "init.el"
+  (pcase system-type
+    ((or 'gnu/linux 'windows-nt 'cygwin)
+     (set-face-attribute 'default nil
+    	               :family "Iosevka Nerd Font Mono"
+    	               :weight 'regular))
+    ('darwin (set-face-attribute 'default nil :family "IosevkaTerm Nerd Font Mono" :weight 'regular)))
+#+end_src
 
-    (setq ring-bell-function #'ignore)
-    (setq inhibit-startup-message t)
+*** Disable unneeded features
+- These settings are very commonly used to turn emacs into a more suitable editor for programmers
+  
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq ring-bell-function #'ignore)
+  (setq inhibit-startup-message t)
+  ;; Turn off some unneeded UI elements
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+#+end_src
 
-    (setq custom-file (locate-user-emacs-file "custom-vars.el"))
-    (load custom-file 'noerror 'nomessage)
+*** Enable buffer line numbers
+#+begin_src emacs-lisp :tangle "init.el"
+  (global-display-line-numbers-mode 1)
 
-    (setq w32-pass-apps-to-system nil)
-    (setq w32-apps-modifier 'hyper)
+  (hl-line-mode 1)
+#+end_src
 
-    ;;(defconst my-leader (if (eq system-type 'darwin) "SPC" "SPC"))
-    (defun enable-hyper-super-modifiers-linux-x ()
-      ;; on nowadays linux, <windows> key is usually configured to Super
-      
-      ;; menu key as hyper (Note: for H-s, you need to release <menu> key before pressing 's')
-      (define-key key-translation-map [menu] 'event-apply-hyper-modifier) ;H-
-      ;;(define-key key-translation-map [apps] 'event-apply-hyper-modifier)
-      
-      ;; by default, Emacs bind <menu> to execute-extended-command (same as M-x) now <menu> defined as 'hyper, we need to press <menu> twice to get <H-menu> (global-set-key (kbd "<H-menu>") 'execute-extended-command)
-      )
+*** Enable history settings
+#+begin_src emacs-lisp :tangle "init.el"
+  (recentf-mode 1)
+  (setq history-length 25)
+  (savehist-mode 1)
+  (save-place-mode 1)
+#+end_src
 
-    (enable-hyper-super-modifiers-linux-x)
+*** Notice and show changes made to files outside emacs 
+#+begin_src emacs-lisp :tangle "init.el"
+  (global-auto-revert-mode 1)
+  (setq global-auto-revert-non-file-buffers t)
+#+end_src
 
-    ;; Turn off some unneeded UI elements
-    (menu-bar-mode -1)
-    (tool-bar-mode -1)
-    (scroll-bar-mode -1)
+*** Disable cursors in the minibuffer prompt
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+#+end_src
 
-    ;; Display line numbers in every buffer
-    (global-display-line-numbers-mode 1)
+*** Allow the use of mini buffer commands inside a mini buffer
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq enable-recursive-minibuffers t)
+  (minibuffer-depth-indicate-mode 1)  
+#+end_src
 
-    (hl-line-mode 1)
-    (recentf-mode 1)
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq custom-file (locate-user-emacs-file "custom-vars.el"))
+  (load custom-file 'noerror 'nomessage)
 
-    (setq history-length 25)
-    (savehist-mode 1)
-    (save-place-mode 1)
+  (setq w32-pass-apps-to-system nil)
+  (setq w32-apps-modifier 'hyper)
 
-    (global-auto-revert-mode 1)
-    (setq global-auto-revert-non-file-buffers t)
+  ;;(defconst my-leader (if (eq system-type 'darwin) "SPC" "SPC"))
+  (defun enable-hyper-super-modifiers-linux-x ()
+    ;; on nowadays linux, <windows> key is usually configured to Super
 
-    ;; Vertico settings
-    ;; Add prompt indicator to `completing-read-multiple'.
-    ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
-    (defun crm-indicator (args)
-      (cons (format "[CRM%s] %s"
-                    (replace-regexp-in-string
-                     "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                     crm-separator)
-                    (car args))
-            (cdr args)))
-    (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+    ;; menu key as hyper (Note: for H-s, you need to release <menu> key before pressing 's')
+    (define-key key-translation-map [menu] 'event-apply-hyper-modifier) ;H-
+    ;;(define-key key-translation-map [apps] 'event-apply-hyper-modifier)
 
-    ;; Do not allow the cursor in the minibuffer prompt
-    (setq minibuffer-prompt-properties
-          '(read-only t cursor-intangible t face minibuffer-prompt))
-    (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
-    ;; Enable recursive minibuffers
-    (setq enable-recursive-minibuffers t)
+    ;; by default, Emacs bind <menu> to execute-extended-command (same as M-x) now <menu> defined as 'hyper, we need to press <menu> twice to get <H-menu> (global-set-key (kbd "<H-menu>") 'execute-extended-command)
     )
+
+  (enable-hyper-super-modifiers-linux-x)
+
+  ;; Vertico settings
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
 
   (use-package org
     :ensure nil
@@ -538,9 +564,4 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     (setq denote-directory (expand-file-name "~/Documents/org/denote"))
     (setq denote-known-keywords '("emacs" "org mode" "denote" "game dev" "godot" "C" "lisp" "typescript" "javascript" "angular" "ngrx" "hand tools" "power tools" "offroading" "preparedness"))
     )
-
-  (use-package org-bullets
-    :ensure t
-    :config
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+end_src
