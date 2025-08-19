@@ -97,7 +97,6 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+begin_src emacs-lisp :tangle "init.el"
   (setq ring-bell-function #'ignore)
   (setq inhibit-startup-message t)
-  ;; Turn off some unneeded UI elements
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
@@ -106,7 +105,6 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 *** Enable buffer line numbers
 #+begin_src emacs-lisp :tangle "init.el"
   (global-display-line-numbers-mode 1)
-
   (hl-line-mode 1)
 #+end_src
 
@@ -137,10 +135,19 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
   (minibuffer-depth-indicate-mode 1)  
 #+end_src
 
+*** Set custom-file to random file
+- This file will be the repository for customizations emacs /would/ have written in ~init.el~ whenever ~M-x customize~ related commands are executed
+- Can even be turned into temporary file, might do that so they never persist
+
 #+begin_src emacs-lisp :tangle "init.el"
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
   (load custom-file 'noerror 'nomessage)
+  ;; Disable the damn thing by making it disposable. 
+  ;; (setq custom-file (make-temp-file "emacs-custom-"))
+#+end_src
 
+*** Create ~hyper~ modifier functionality
+#+begin_src emacs-lisp :tangle "init.el"
   (setq w32-pass-apps-to-system nil)
   (setq w32-apps-modifier 'hyper)
 
@@ -156,7 +163,10 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     )
 
   (enable-hyper-super-modifiers-linux-x)
+#+end_src
 
+*** Vertico prompt indicator
+#+begin_src emacs-lisp :tangle "init.el"
   ;; Vertico settings
   ;; Add prompt indicator to `completing-read-multiple'.
   ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
@@ -168,8 +178,39 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
                   (car args))
           (cdr args)))
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+#+end_src
 
+*** Load modules
+#+begin_src emacs-lisp :tangle "init.el"
+  (mapc
+   (lambda (string)
+     (add-to-list 'load-path (locate-user-emacs-file string)))
+   '("tony-emacs-modules"))
 
+  (require 'tony-emacs-org)
+  (require 'tony-emacs-project)
+  (require 'tony-emacs-meow)
+  (require 'tony-emacs-which-key)
+  (require 'tony-emacs-doom-themes)
+  (require 'tony-emacs-solaire-mode)
+  (require 'tony-emacs-doom-modeline)
+  (require 'tony-emacs-textsize)
+  (require 'tony-emacs-vertico)
+  (require 'tony-emacs-marginalia)
+  (require 'tony-emacs-orderless)
+  (require 'tony-emacs-consult)
+  (require 'tony-emacs-consult)
+  (require 'tony-emacs-magit)
+  (require 'tony-emacs-denote)
+
+#+end_src
+
+* Modules
+
+** ~org.el~
+
+*** org mode setup
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el"
   (use-package org
     :ensure nil
     :init
@@ -178,15 +219,35 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     :config
     (setq org-startup-indented t)
     )
+#+end_src
 
+*** org agenda set up
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el"
   (use-package org-agenda
     :ensure nil
     :config
     (setq org-agenda-files (list org-directory)))
+#+end_src
 
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el"
+  (provide 'tony-emacs-org)
+#+end_src
+
+** ~project.el~
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-project.el"
   (use-package project
     :ensure nil)
+#+end_src
 
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-project.el"
+  (provide 'tony-emacs-project)
+#+end_src
+
+** ~meow.el~
+*** setup meow config
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-meow.el"
   (defun meow-setup ()
     (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
     (meow-motion-overwrite-define-key
@@ -272,17 +333,41 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
      '("z" . meow-pop-selection)
      '("'" . repeat)
      '("<escape>" . ignore)))
+#+end_src
 
+*** start up meow package
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-meow.el"
   (use-package meow
     :ensure t
     :config
     (meow-setup)
     (meow-global-mode 1)
     )
+#+end_src
 
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-meow.el"
+  (provide 'tony-emacs-meow)
+#+end_src
+
+** ~which-key.el~
+
+*** setup which key
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-which-key.el"
   (use-package which-key
     :ensure t
     :config (which-key-mode))
+#+end_src
+
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-which-key.el"
+  (provide 'tony-emacs-which-key)
+#+end_src
+
+** ~doom-themes.el~
+
+*** use and config doom themes
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-themes.el"
   (use-package doom-themes
     :ensure t
     :config
@@ -300,16 +385,46 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     (doom-themes-treemacs-config)
     ;; Corrects (and improves) org-mode's native fontification.
     (doom-themes-org-config))
+#+end_src
 
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-themes.el"
+  (provide 'tony-emacs-doom-themes)
+#+end_src
+
+** ~solaire-mode.el~
+
+*** use and config solaire mode
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-solaire-mode.el"
   (use-package solaire-mode
     :ensure t
     :config
     (solaire-global-mode +1))
+#+end_src
 
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-solaire-mode.el"
+  (provide 'tony-emacs-solaire-mode)
+#+end_src
+
+** ~doom-modeline.el~
+
+*** use and config doom modeline
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-modeline.el"
   (use-package doom-modeline
     :ensure t
     :init (doom-modeline-mode 1))
+#+end_src
 
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-modeline.el"
+  (provide 'tony-emacs-doom-modeline)
+#+end_src
+
+** ~textsize.el~
+
+*** use and config textsize
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-textsize.el"
   (use-package textsize
     :ensure t
     :init (textsize-mode)
@@ -320,7 +435,10 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
   			  '((0 . -3) (340 . 0) (600 . -1)(900 . 6)(1200 . 9)))
     (customize-set-variable 'textsize-pixel-pitch-thresholds
                             '((0 . 15) (.08 . 15) (0.11 . 0))))
+#+end_src
 
+*** textsize-metrics creation
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-textsize.el"
   ;; stole this from jmccarrell
   (defun tb/dump-frame-textsize-metrics ()
     "Dump selected frame metrics from the currently selected frame to the *Message* buffer.
@@ -348,8 +466,16 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
       (message "default face font %s" (face-attribute 'default :font))
       )
     nil)
+#+end_src
 
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-textsize.el"
+  (provide 'tony-emacs-textsize)
+#+end_src
 
+** ~vertico.el~
+
+*** use vertico and config
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-vertico.el"
   (use-package vertico
     :ensure t
     :init
@@ -370,7 +496,16 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
     ;; (setq vertico-cycle t)
     )
+#+end_src
 
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-vertico.el"
+  (provide 'tony-emacs-vertico)
+#+end_src
+
+** ~marginalia.el~
+*** use and config marginalia
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-marginalia.el"
   ;; Enable rich annotations using the Marginalia package
   (use-package marginalia
     :ensure t
@@ -387,7 +522,15 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     ;; the mode gets enabled right away. Note that this forces loading the
     ;; package.
     (marginalia-mode))
+#+end_src
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-marginalia.el"
+  (provide 'tony-emacs-marginalia)
+#+end_src
 
+** ~orderless.el~
+*** use and config orderless
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-orderless.el"
   (use-package orderless
     :ensure t
     :init
@@ -397,7 +540,15 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     (setq completion-styles '(orderless basic)
           completion-category-defaults nil
           completion-category-overrides '((file (styles partial-completion)))))
+#+end_src#+end_src
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-orderless.el"
+  (provide 'tony-emacs-orderless)
+#+end_src
 
+** ~consult.el~
+*** use and config consult
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-consult.el"
   ;; Example configuration for Consult
   (use-package consult
     :ensure t
@@ -518,7 +669,16 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     ;;;; 5. No project support
     ;; (setq consult-project-function nil)
     )
+#+end_src
 
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-consult.el"
+  (provide 'tony-emacs-consult)
+#+end_src
+
+** ~embark.el~
+*** use and config embark
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-embark.el"
   (use-package embark
     :ensure t
 
@@ -548,20 +708,42 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                    nil
                    (window-parameters (mode-line-format . none)))))
-
+#+end_src
+*** use and config embark-consult
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-embark.el"
   ;; Consult users will also want the embark-consult package.
   (use-package embark-consult
     :ensure t ; only need to install it, embark loads it after consult if found
     :hook
     (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-embark.el"
+  (provide 'tony-emacs-embark)
+#+end_src
 
+** ~magit.el~
+*** use and config magit
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-magit.el"
   (use-package magit
     :ensure t)
+#+end_src
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-magit.el"
+  (provide 'tony-emacs-magit)
+#+end_src
 
+** ~denote.el~
+*** use and config denote
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el"
   (use-package denote
     :ensure t
     :config
     (setq denote-directory (expand-file-name "~/Documents/org/denote"))
     (setq denote-known-keywords '("emacs" "org mode" "denote" "game dev" "godot" "C" "lisp" "typescript" "javascript" "angular" "ngrx" "hand tools" "power tools" "offroading" "preparedness"))
     )
+#+end_src
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el"
+  (provide 'tony-emacs-denote)
 #+end_src
