@@ -6,7 +6,7 @@
 
 **  Find gcc and libgccjit packages to be used for emacs on macOS
 
-#+begin_src emacs-lisp :tangle "early-init.el"
+#+begin_src emacs-lisp :tangle "early-init.el" :mkdirp yes
 (defun homebrew-gcc-paths ()
   "Return GCC library paths from Homebrew installations.
 Detects paths for gcc and libgccjit packages to be used in LIBRARY_PATH."
@@ -63,7 +63,7 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 
 **  Initialize package repositories
 
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (require 'package)
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
   ;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
@@ -76,13 +76,13 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 
 *** Start emacs maximized
 
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 #+end_src
 
 *** Set font depending on OS
 
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (pcase system-type
     ((or 'gnu/linux 'windows-nt 'cygwin)
      (set-face-attribute 'default nil
@@ -94,7 +94,7 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 *** Disable unneeded features
 - These settings are very commonly used to turn emacs into a more suitable editor for programmers
   
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (setq ring-bell-function #'ignore)
   (setq inhibit-startup-message t)
   (menu-bar-mode -1)
@@ -103,13 +103,13 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** Enable buffer line numbers
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (global-display-line-numbers-mode 1)
   (hl-line-mode 1)
 #+end_src
 
 *** Enable history settings
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (recentf-mode 1)
   (setq history-length 25)
   (savehist-mode 1)
@@ -117,20 +117,20 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** Notice and show changes made to files outside emacs 
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (global-auto-revert-mode 1)
   (setq global-auto-revert-non-file-buffers t)
 #+end_src
 
 *** Disable cursors in the minibuffer prompt
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (setq minibuffer-prompt-properties
         '(read-only t cursor-intangible t face minibuffer-prompt))
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 #+end_src
 
 *** Allow the use of mini buffer commands inside a mini buffer
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (setq enable-recursive-minibuffers t)
   (minibuffer-depth-indicate-mode 1)  
 #+end_src
@@ -139,7 +139,7 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 - This file will be the repository for customizations emacs /would/ have written in ~init.el~ whenever ~M-x customize~ related commands are executed
 - Can even be turned into temporary file, might do that so they never persist
 
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
   (load custom-file 'noerror 'nomessage)
   ;; Disable the damn thing by making it disposable. 
@@ -147,7 +147,7 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** Create ~hyper~ modifier functionality
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (setq w32-pass-apps-to-system nil)
   (setq w32-apps-modifier 'hyper)
 
@@ -166,7 +166,7 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** Vertico prompt indicator
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   ;; Vertico settings
   ;; Add prompt indicator to `completing-read-multiple'.
   ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
@@ -181,11 +181,11 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** Load modules
-#+begin_src emacs-lisp :tangle "init.el"
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (mapc
    (lambda (string)
      (add-to-list 'load-path (locate-user-emacs-file string)))
-   '("tony-emacs-modules"))
+   '("tony-lisp" "tony-emacs-modules"))
 
   (require 'tony-emacs-org)
   (require 'tony-emacs-project)
@@ -199,9 +199,9 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
   (require 'tony-emacs-marginalia)
   (require 'tony-emacs-orderless)
   (require 'tony-emacs-consult)
-  (require 'tony-emacs-consult)
   (require 'tony-emacs-magit)
   (require 'tony-emacs-denote)
+  ;;(require 'tony-emacs-treesit)
 
 #+end_src
 
@@ -210,7 +210,7 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 ** ~org.el~
 
 *** org mode setup
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
   (use-package org
     :ensure nil
     :init
@@ -222,7 +222,7 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** org agenda set up
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
   (use-package org-agenda
     :ensure nil
     :config
@@ -230,24 +230,24 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
   (provide 'tony-emacs-org)
 #+end_src
 
 ** ~project.el~
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-project.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-project.el" :mkdirp yes
   (use-package project
     :ensure nil)
 #+end_src
 
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-project.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-project.el" :mkdirp yes
   (provide 'tony-emacs-project)
 #+end_src
 
 ** ~meow.el~
 *** setup meow config
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-meow.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-meow.el" :mkdirp yes
   (defun meow-setup ()
     (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
     (meow-motion-overwrite-define-key
@@ -336,7 +336,7 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** start up meow package
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-meow.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-meow.el" :mkdirp yes
   (use-package meow
     :ensure t
     :config
@@ -346,28 +346,28 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-meow.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-meow.el" :mkdirp yes
   (provide 'tony-emacs-meow)
 #+end_src
 
 ** ~which-key.el~
 
 *** setup which key
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-which-key.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-which-key.el" :mkdirp yes
   (use-package which-key
     :ensure t
     :config (which-key-mode))
 #+end_src
 
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-which-key.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-which-key.el" :mkdirp yes
   (provide 'tony-emacs-which-key)
 #+end_src
 
 ** ~doom-themes.el~
 
 *** use and config doom themes
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-themes.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-themes.el" :mkdirp yes
   (use-package doom-themes
     :ensure t
     :config
@@ -388,14 +388,14 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-themes.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-themes.el" :mkdirp yes
   (provide 'tony-emacs-doom-themes)
 #+end_src
 
 ** ~solaire-mode.el~
 
 *** use and config solaire mode
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-solaire-mode.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-solaire-mode.el" :mkdirp yes
   (use-package solaire-mode
     :ensure t
     :config
@@ -410,21 +410,21 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 ** ~doom-modeline.el~
 
 *** use and config doom modeline
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-modeline.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-modeline.el" :mkdirp yes
   (use-package doom-modeline
     :ensure t
     :init (doom-modeline-mode 1))
 #+end_src
 
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-modeline.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-modeline.el" :mkdirp yes
   (provide 'tony-emacs-doom-modeline)
 #+end_src
 
 ** ~textsize.el~
 
 *** use and config textsize
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-textsize.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-textsize.el" :mkdirp yes
   (use-package textsize
     :ensure t
     :init (textsize-mode)
@@ -438,7 +438,7 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** textsize-metrics creation
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-textsize.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-textsize.el" :mkdirp yes
   ;; stole this from jmccarrell
   (defun tb/dump-frame-textsize-metrics ()
     "Dump selected frame metrics from the currently selected frame to the *Message* buffer.
@@ -468,14 +468,14 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     nil)
 #+end_src
 
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-textsize.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-textsize.el" :mkdirp yes
   (provide 'tony-emacs-textsize)
 #+end_src
 
 ** ~vertico.el~
 
 *** use vertico and config
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-vertico.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-vertico.el" :mkdirp yes
   (use-package vertico
     :ensure t
     :init
@@ -499,13 +499,13 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-vertico.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-vertico.el" :mkdirp yes
   (provide 'tony-emacs-vertico)
 #+end_src
 
 ** ~marginalia.el~
 *** use and config marginalia
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-marginalia.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-marginalia.el" :mkdirp yes
   ;; Enable rich annotations using the Marginalia package
   (use-package marginalia
     :ensure t
@@ -524,13 +524,13 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     (marginalia-mode))
 #+end_src
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-marginalia.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-marginalia.el" :mkdirp yes
   (provide 'tony-emacs-marginalia)
 #+end_src
 
 ** ~orderless.el~
 *** use and config orderless
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-orderless.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-orderless.el" :mkdirp yes
   (use-package orderless
     :ensure t
     :init
@@ -542,13 +542,13 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
           completion-category-overrides '((file (styles partial-completion)))))
 #+end_src#+end_src
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-orderless.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-orderless.el" :mkdirp yes
   (provide 'tony-emacs-orderless)
 #+end_src
 
 ** ~consult.el~
 *** use and config consult
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-consult.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-consult.el" :mkdirp yes
   ;; Example configuration for Consult
   (use-package consult
     :ensure t
@@ -672,13 +672,13 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-consult.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-consult.el" :mkdirp yes
   (provide 'tony-emacs-consult)
 #+end_src
 
 ** ~embark.el~
 *** use and config embark
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-embark.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-embark.el" :mkdirp yes
   (use-package embark
     :ensure t
 
@@ -710,7 +710,7 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
                    (window-parameters (mode-line-format . none)))))
 #+end_src
 *** use and config embark-consult
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-embark.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-embark.el" :mkdirp yes
   ;; Consult users will also want the embark-consult package.
   (use-package embark-consult
     :ensure t ; only need to install it, embark loads it after consult if found
@@ -718,24 +718,24 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-embark.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-embark.el" :mkdirp yes
   (provide 'tony-emacs-embark)
 #+end_src
 
 ** ~magit.el~
 *** use and config magit
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-magit.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-magit.el" :mkdirp yes
   (use-package magit
     :ensure t)
 #+end_src
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-magit.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-magit.el" :mkdirp yes
   (provide 'tony-emacs-magit)
 #+end_src
 
 ** ~denote.el~
 *** use and config denote
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
   (use-package denote
     :ensure t
     :config
@@ -744,6 +744,86 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
     )
 #+end_src
 *** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el"
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
   (provide 'tony-emacs-denote)
 #+end_src
+
+** ~treesit.el~
+
+*** use and config treesit
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-treesit.el" :mkdirp yes
+    (use-package treesit
+        :mode (
+               ("\\.html\\'"  . html-ts-mode)
+               ("\\.component.html\\'"  . ngxhtml-ts-mode)
+               ("\\.js\\'"  . typescript-ts-mode)
+               ("\\.mjs\\'" . typescript-ts-mode)
+               ("\\.mts\\'" . typescript-ts-mode)
+               ("\\.cjs\\'" . typescript-ts-mode)
+               ("\\.ts\\'"  . typescript-ts-mode)
+               ("\\.jsx\\'" . tsx-ts-mode)
+               ("\\.json\\'" .  json-ts-mode)
+               ("\\.Dockerfile\\'" . dockerfile-ts-mode)
+               ("\\.prisma\\'" . prisma-ts-mode)
+               ("\\.yaml\\'" . yaml-ts-mode)
+               ;; More modes defined here...
+               )
+        :preface
+        (defun tb/setup-install-grammars ()
+          "Install Tree-sitter grammars if they are absent."
+          (interactive)
+          (dolist (grammar
+                   '((css . ("https://github.com/tree-sitter/tree-sitter-css"))
+                     (bash "https://github.com/tree-sitter/tree-sitter-bash")
+                     (html  "https://github.com/tree-sitter/tree-sitter-html")
+                     (angular  "https://github.com/dlvandenberg/tree-sitter-angular")
+                     (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+                     (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+                     (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+                     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+                     (make "https://github.com/alemuller/tree-sitter-make")
+                     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+                     (cmake "https://github.com/uyha/tree-sitter-cmake")
+                     (c "https://github.com/tree-sitter/tree-sitter-c")
+  		   (gdscript "https://github.com/PrestonKnopp/tree-sitter-gdscript")
+                     (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+                     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+                     (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" ))
+                     (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
+                     (prisma "https://github.com/victorhqc/tree-sitter-prisma")))
+            (add-to-list 'treesit-language-source-alist grammar)
+            ;; Only install `grammar' if we don't already have it
+            ;; installed. However, if you want to *update* a grammar then
+            ;; this obviously prevents that from happening.
+            (unless (treesit-language-available-p (car grammar))
+              (treesit-install-language-grammar (car grammar)))))
+
+        ;; Optional, but recommended. Tree-sitter enabled major modes are
+        ;; distinct from their ordinary counterparts.
+        ;;
+        ;; You can remap major modes with `major-mode-remap-alist'. Note
+        ;; that this does *not* extend to hooks! Make sure you migrate them
+        ;; also
+        (dolist (mapping
+                 '((python-mode . python-ts-mode)
+                   (css-mode . css-ts-mode)
+                   (typescript-mode . typescript-ts-mode)
+                   (js-mode . typescript-ts-mode)
+                   (js2-mode . typescript-ts-mode)
+                   (c-mode . c-ts-mode)
+                   (c++-mode . c++-ts-mode)
+                   (c-or-c++-mode . c-or-c++-ts-mode)
+                   (bash-mode . bash-ts-mode)
+                   (css-mode . css-ts-mode)
+                   (json-mode . json-ts-mode)
+                   (js-json-mode . json-ts-mode)
+                   (sh-mode . bash-ts-mode)
+                   (sh-base-mode . bash-ts-mode)))
+          (add-to-list 'major-mode-remap-alist mapping))
+        :config
+        (tb/setup-install-grammars)
+  )
+
+#+end_src
+
+
