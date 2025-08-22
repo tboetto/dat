@@ -74,7 +74,7 @@
 (mapc
  (lambda (string)
    (add-to-list 'load-path (locate-user-emacs-file string)))
- '("tony-emacs-modules"))
+ '("tony-lisp" "tony-emacs-modules"))
 
 (require 'tony-emacs-org)
 (require 'tony-emacs-project)
@@ -88,6 +88,10 @@
 (require 'tony-emacs-marginalia)
 (require 'tony-emacs-orderless)
 (require 'tony-emacs-consult)
-(require 'tony-emacs-consult)
 (require 'tony-emacs-magit)
 (require 'tony-emacs-denote)
+(require 'tony-emacs-completion)
+(require 'tony-emacs-linter)
+(require 'tony-emacs-prettier)
+(require 'tony-emacs-treesit)
+(require 'tony-emacs-lsp-mode)

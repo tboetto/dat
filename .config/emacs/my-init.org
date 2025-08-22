@@ -7,56 +7,58 @@
 **  Find gcc and libgccjit packages to be used for emacs on macOS
 
 #+begin_src emacs-lisp :tangle "early-init.el" :mkdirp yes
-(defun homebrew-gcc-paths ()
-  "Return GCC library paths from Homebrew installations.
-Detects paths for gcc and libgccjit packages to be used in LIBRARY_PATH."
-  (let* ((paths '())
-         (brew-bin (or (executable-find "brew")
-                       (let ((arm-path "/opt/homebrew/bin/brew")
-                             (intel-path "/usr/local/bin/brew"))
-                         (cond
-                          ((file-exists-p arm-path) arm-path)
-                          ((file-exists-p intel-path) intel-path))))))
+  (setenv "LSP_USE_PLISTS" "true") ;; in early-init.el
 
-    (when brew-bin
-      ;; Get gcc paths.
-      (let* ((gcc-prefix (string-trim
-                          (shell-command-to-string
-                           (concat brew-bin " --prefix gcc"))))
-             (gcc-lib-current (expand-file-name "lib/gcc/current" gcc-prefix)))
-        (push gcc-lib-current paths)
+  (defun homebrew-gcc-paths ()
+    "Return GCC library paths from Homebrew installations.
+  Detects paths for gcc and libgccjit packages to be used in LIBRARY_PATH."
+    (let* ((paths '())
+           (brew-bin (or (executable-find "brew")
+                         (let ((arm-path "/opt/homebrew/bin/brew")
+                               (intel-path "/usr/local/bin/brew"))
+                           (cond
+                            ((file-exists-p arm-path) arm-path)
+                            ((file-exists-p intel-path) intel-path))))))
 
-        ;; Find apple-darwin directory.
-        (let* ((default-directory gcc-lib-current)
-               (arch-dirs (file-expand-wildcards "gcc/*-apple-darwin*/*[0-9]")))
-          (when arch-dirs
-            (push (expand-file-name
-                   (car (sort arch-dirs #'string>)))
-                  paths))))
+      (when brew-bin
+        ;; Get gcc paths.
+        (let* ((gcc-prefix (string-trim
+                            (shell-command-to-string
+                             (concat brew-bin " --prefix gcc"))))
+               (gcc-lib-current (expand-file-name "lib/gcc/current" gcc-prefix)))
+          (push gcc-lib-current paths)
 
-      ;; Get libgccjit paths
-      (let* ((jit-prefix (string-trim
-                          (shell-command-to-string
-                           (concat brew-bin " --prefix libgccjit"))))
-             (jit-lib-current (expand-file-name "lib/gcc/current" jit-prefix)))
-        (push jit-lib-current paths)))
+          ;; Find apple-darwin directory.
+          (let* ((default-directory gcc-lib-current)
+                 (arch-dirs (file-expand-wildcards "gcc/*-apple-darwin*/*[0-9]")))
+            (when arch-dirs
+              (push (expand-file-name
+                     (car (sort arch-dirs #'string>)))
+                    paths))))
 
-    (nreverse paths)))
+        ;; Get libgccjit paths
+        (let* ((jit-prefix (string-trim
+                            (shell-command-to-string
+                             (concat brew-bin " --prefix libgccjit"))))
+               (jit-lib-current (expand-file-name "lib/gcc/current" jit-prefix)))
+          (push jit-lib-current paths)))
 
-(defun setup-macos-native-comp-library-paths ()
-  "Set up LIBRARY_PATH for native compilation on macOS.
-Includes Homebrew GCC paths and CommandLineTools SDK libraries."
-  (let* ((existing-paths (split-string (or (getenv "LIBRARY_PATH") "") ":" t))
-         (gcc-paths (homebrew-gcc-paths))
-         (clt-paths '("/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"))
-         (unique-paths (delete-dups
-                        (append existing-paths gcc-paths clt-paths))))
+      (nreverse paths)))
 
-    (setenv "LIBRARY_PATH" (mapconcat #'identity unique-paths ":"))))
+  (defun setup-macos-native-comp-library-paths ()
+    "Set up LIBRARY_PATH for native compilation on macOS.
+  Includes Homebrew GCC paths and CommandLineTools SDK libraries."
+    (let* ((existing-paths (split-string (or (getenv "LIBRARY_PATH") "") ":" t))
+           (gcc-paths (homebrew-gcc-paths))
+           (clt-paths '("/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"))
+           (unique-paths (delete-dups
+                          (append existing-paths gcc-paths clt-paths))))
 
-;; Set up library paths for native compilation on macOS.
-(when (eq system-type 'darwin)
-  (setup-macos-native-comp-library-paths))
+      (setenv "LIBRARY_PATH" (mapconcat #'identity unique-paths ":"))))
+
+  ;; Set up library paths for native compilation on macOS.
+  (when (eq system-type 'darwin)
+    (setup-macos-native-comp-library-paths))
 #+end_src
 
 * ~init.el~
@@ -180,7 +182,7 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 #+end_src
 
-*** Load modules
+*** Load packages and modules
 #+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
   (mapc
    (lambda (string)
@@ -201,8 +203,268 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
   (require 'tony-emacs-consult)
   (require 'tony-emacs-magit)
   (require 'tony-emacs-denote)
-  ;;(require 'tony-emacs-treesit)
+  (require 'tony-emacs-completion)
+  (require 'tony-emacs-linter)
+  (require 'tony-emacs-prettier)
+  (require 'tony-emacs-treesit)
+  (require 'tony-emacs-lsp-mode)
 
+#+end_src
+
+* Packages
+
+** ~ngxhtml-ts-mode.el~
+#+begin_src emacs-lisp :tangle "tony-lisp/ngxhtml-ts-mode.el" :mkdirp yes
+  ;;; ngxhtml-ts-mode.el --- tree-sitter support for NGXHTML  -*- lexical-binding: t; -*-
+  
+  ;; Took this from github.com/yolksys
+
+  ;; Copyright (C) 2023-2025 Free Software Foundation, Inc.
+
+  ;; Author     : cyf <theo@thornhill.no>
+  ;; Maintainer : yf <theo@thornhill.no>
+  ;; Created    : January 2025
+  ;; Keywords   : ngxhtml languages tree-sitter
+
+  ;; This file is not part of GNU Emacs.
+
+  ;; This file is free software
+
+  ;; GNU Emacs is free software: you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation, either version 3 of the License, or
+  ;; (at your option) any later version.
+
+  ;; GNU Emacs is distributed in the hope that it will be useful,
+  ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ;; GNU General Public License for more details.
+
+  ;; You should have received a copy of the GNU General Public License
+  ;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
+
+  ;;; Commentary:
+  ;;
+
+  ;;; Code:
+
+  (require 'treesit)
+  (require 'sgml-mode)
+
+  (if (not treesit-load-name-override-list)
+    (setq treesit-load-name-override-list
+              '((ngxhtml "libtree-sitter-angular" "tree_sitter_angular")))
+    (add-to-list treesit-load-name-override-list
+                 '(ngxhtml "libtree-sitter-angular" "tree_sitter_angular")))
+
+  ;;;for ngxhtml start
+  (defgroup ngx-group nil "ngx group")
+
+  (defface ngx-control-face
+    '((((class color) (min-colors 88) (background light))
+       :foreground "#D73A49")
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#F97583")
+      (((class color) (min-colors 16) (background light))
+       :foreground "#D73A49")
+      (((class color) (min-colors 16) (background dark))
+       :foreground "#F97583")
+      (((class color) (min-colors 8))
+       :background "green" :foreground "black")
+      (t :inverse-video t))
+    "Basic face for ngx."
+    :group 'ngx-group)
+
+  (defface ngx-pipe-face
+    '((((class color) (min-colors 88) (background light))
+       :foreground "#6F42C1")
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#B392F0")
+      (((class color) (min-colors 16) (background light))
+       :foreground "#6F42C1")
+      (((class color) (min-colors 16) (background dark))
+       :foreground "#B392F0")
+      (((class color) (min-colors 8))
+       :background "green" :foreground "black")
+      (t :inverse-video t))
+    "Basic face for ngx."
+    :group 'ngx-group)
+
+  (defface ngx-bind-face
+    '((((class color) (min-colors 88) (background light))
+       :foreground "#6F42C1")
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#8514f5")
+      (((class color) (min-colors 16) (background light))
+       :foreground "#6F42C1")
+      (((class color) (min-colors 16) (background dark))
+       :foreground "#8514f5")
+      (((class color) (min-colors 8))
+       :background "green" :foreground "black")
+      (t :inverse-video t))
+    "Basic face for ngx."
+    :group 'ngx-group)
+
+  (defface ngx-id-face
+    '((((class color) (min-colors 88) (background light))
+       :foreground "#22863A")
+      (((class color) (min-colors 88) (background dark))
+       :foreground "#85E89D")
+      (((class color) (min-colors 16) (background light))
+       :foreground "#22863A")
+      (((class color) (min-colors 16) (background dark))
+       :foreground "#85E89D")
+      (((class color) (min-colors 8))
+       :background "green" :foreground "black")
+      (t :inverse-video t))
+    "Basic face for ngx."
+    :group 'ngx-group)
+
+  ;;;for ngxhtml end
+
+  (defcustom ngxhtml-ts-mode-indent-offset 2
+    "Number of spaces for each indentation step in `ngxhtml-ts-mode'."
+    :version "29.1"
+    :type 'integer
+    :safe 'integerp
+    :group 'ngxhtml)
+
+  (defvar ngxhtml-ts-mode--indent-rules
+    `((ngxhtml
+       ((parent-is "fragment") column-0 0)
+       ((node-is "/>") parent-bol 0)
+       ((node-is ">") parent-bol 0)
+       ((node-is "end_tag") parent-bol 0)
+       ((node-is "}") parent-bol 0);;;
+       ((parent-is "statement_block") parent-bol ngxhtml-ts-mode-indent-offset);;;
+       ((parent-is "comment") prev-adaptive-prefix 0)
+       ((parent-is "element") parent-bol ngxhtml-ts-mode-indent-offset)
+       ((parent-is "script_element") parent-bol ngxhtml-ts-mode-indent-offset)
+       ((parent-is "style_element") parent-bol ngxhtml-ts-mode-indent-offset)
+       ((parent-is "start_tag") parent-bol ngxhtml-ts-mode-indent-offset)
+       ((parent-is "self_closing_tag") parent-bol ngxhtml-ts-mode-indent-offset)
+       (catch-all parent-bol 0)))
+    "Tree-sitter indent rules.")
+
+  (defvar ngxhtml-ts-mode--font-lock-settings
+    (treesit-font-lock-rules
+     :language 'ngxhtml
+     :override t
+     :feature 'comment
+     `((comment) @font-lock-comment-face)
+     :language 'ngxhtml
+     :override t
+     :feature 'keyword
+     `("doctype" @font-lock-keyword-face)
+     :language 'ngxhtml
+     :override t
+     :feature 'definition
+     `((tag_name) @font-lock-function-name-face)
+     :language 'ngxhtml
+     :override t
+     :feature 'string
+     `((quoted_attribute_value) @font-lock-string-face)
+     :language 'ngxhtml
+     :override t
+     :feature 'property
+     `((attribute_name) @font-lock-variable-name-face)
+
+    ;;;ngx start
+     :language 'ngxhtml
+     :override t
+     :feature 'id
+     `((identifier) @ngx-id-face)
+     :language 'ngxhtml
+     :override t
+     :feature 'control
+     `(["@" @ngx-control-face
+        (control_keyword) @ngx-control-face])
+     :language 'ngxhtml
+     :override t
+     :feature 'pipe
+     `((pipe_call) @ngx-pipe-face)
+     :language 'ngxhtml
+     :feature 'bind
+     `((["(" @ngx-bind-face
+        "[" @ngx-bind-face
+        "[(" @ngx-bind-face]
+       (binding_name)))
+     :language 'ngxhtml
+     :override t
+     :feature 'bind
+     `(((binding_name) @ngx-bind-face
+       [")" @ngx-bind-face
+        "]" @ngx-bind-face
+        ")]" @ngx-bind-face]))
+     )
+    ;;;ngx end
+    "Tree-sitter font-lock settings for `ngxhtml-ts-mode'.")
+
+  (defun ngxhtml-ts-mode--defun-name (node)
+    "Return the defun name of NODE.
+  Return nil if there is no name or if NODE is not a defun node."
+    (when (equal (treesit-node-type node) "tag_name")
+      (treesit-node-text node t)))
+
+  ;;;###autoload
+  (define-derived-mode ngxhtml-ts-mode html-mode "NGXHTML[ts]"
+    "Major mode for editing Ngxhtml, powered by tree-sitter."
+    :group 'ngxhtml
+
+    (unless (treesit-ready-p 'ngxhtml)
+      (error "Tree-sitter for NGXHTML isn't available"))
+
+    (treesit-parser-create 'ngxhtml)
+
+    ;; Indent.
+    (setq-local treesit-simple-indent-rules ngxhtml-ts-mode--indent-rules)
+
+    ;; Navigation.
+    (setq-local treesit-defun-type-regexp "element")
+
+    (setq-local treesit-defun-name-function #'ngxhtml-ts-mode--defun-name)
+
+    (setq-local treesit-thing-settings
+                `((ngxhtml
+                   (sexp ,(regexp-opt '("element"
+                                        "text"
+                                        "attribute"
+                                        "value")))
+                   (sentence "tag")
+                   (text ,(regexp-opt '("comment" "text"))))))
+
+    ;; Font-lock.
+    (setq-local treesit-font-lock-settings ngxhtml-ts-mode--font-lock-settings)
+    (setq-local treesit-font-lock-feature-list
+                '((comment keyword definition)
+                  (property string)
+  		(control pipe bind icu utl sd id)
+                  () ()))
+
+    ;; Imenu.
+    (setq-local treesit-simple-imenu-settings
+                '(("Element" "\\`tag_name\\'" nil nil)))
+
+    ;; Outline minor mode.
+    (setq-local treesit-outline-predicate "\\`element\\'")
+    ;; `ngxhtml-ts-mode' inherits from `ngxhtml-mode' that sets
+    ;; regexp-based outline variables.  So need to restore
+    ;; the default values of outline variables to be able
+    ;; to use `treesit-outline-predicate' above.
+    (kill-local-variable 'outline-regexp)
+    (kill-local-variable 'outline-heading-end-regexp)
+    (kill-local-variable 'outline-level)
+
+    (treesit-major-mode-setup))
+
+  (derived-mode-add-parents 'ngxhtml-ts-mode '(html-mode))
+
+  (if (treesit-ready-p 'ngxhtml)
+      (add-to-list 'auto-mode-alist '("\\.component.html\\'" . ngxhtml-ts-mode)))
+
+  (provide 'ngxhtml-ts-mode)
+
+  ;;; ngxhtml-ts-mode.el ends here
 #+end_src
 
 * Modules
@@ -749,81 +1011,284 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 #+end_src
 
 ** ~treesit.el~
-
 *** use and config treesit
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-treesit.el" :mkdirp yes
-    (use-package treesit
-        :mode (
-               ("\\.html\\'"  . html-ts-mode)
-               ("\\.component.html\\'"  . ngxhtml-ts-mode)
-               ("\\.js\\'"  . typescript-ts-mode)
-               ("\\.mjs\\'" . typescript-ts-mode)
-               ("\\.mts\\'" . typescript-ts-mode)
-               ("\\.cjs\\'" . typescript-ts-mode)
-               ("\\.ts\\'"  . typescript-ts-mode)
-               ("\\.jsx\\'" . tsx-ts-mode)
-               ("\\.json\\'" .  json-ts-mode)
-               ("\\.Dockerfile\\'" . dockerfile-ts-mode)
-               ("\\.prisma\\'" . prisma-ts-mode)
-               ("\\.yaml\\'" . yaml-ts-mode)
-               ;; More modes defined here...
-               )
-        :preface
-        (defun tb/setup-install-grammars ()
-          "Install Tree-sitter grammars if they are absent."
-          (interactive)
-          (dolist (grammar
-                   '((css . ("https://github.com/tree-sitter/tree-sitter-css"))
-                     (bash "https://github.com/tree-sitter/tree-sitter-bash")
-                     (html  "https://github.com/tree-sitter/tree-sitter-html")
-                     (angular  "https://github.com/dlvandenberg/tree-sitter-angular")
-                     (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-                     (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-                     (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-                     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-                     (make "https://github.com/alemuller/tree-sitter-make")
-                     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-                     (cmake "https://github.com/uyha/tree-sitter-cmake")
-                     (c "https://github.com/tree-sitter/tree-sitter-c")
-  		   (gdscript "https://github.com/PrestonKnopp/tree-sitter-gdscript")
-                     (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-                     (toml "https://github.com/tree-sitter/tree-sitter-toml")
-                     (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" ))
-                     (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
-                     (prisma "https://github.com/victorhqc/tree-sitter-prisma")))
-            (add-to-list 'treesit-language-source-alist grammar)
-            ;; Only install `grammar' if we don't already have it
-            ;; installed. However, if you want to *update* a grammar then
-            ;; this obviously prevents that from happening.
-            (unless (treesit-language-available-p (car grammar))
-              (treesit-install-language-grammar (car grammar)))))
 
-        ;; Optional, but recommended. Tree-sitter enabled major modes are
-        ;; distinct from their ordinary counterparts.
-        ;;
-        ;; You can remap major modes with `major-mode-remap-alist'. Note
-        ;; that this does *not* extend to hooks! Make sure you migrate them
-        ;; also
-        (dolist (mapping
-                 '((python-mode . python-ts-mode)
-                   (css-mode . css-ts-mode)
-                   (typescript-mode . typescript-ts-mode)
-                   (js-mode . typescript-ts-mode)
-                   (js2-mode . typescript-ts-mode)
-                   (c-mode . c-ts-mode)
-                   (c++-mode . c++-ts-mode)
-                   (c-or-c++-mode . c-or-c++-ts-mode)
-                   (bash-mode . bash-ts-mode)
-                   (css-mode . css-ts-mode)
-                   (json-mode . json-ts-mode)
-                   (js-json-mode . json-ts-mode)
-                   (sh-mode . bash-ts-mode)
-                   (sh-base-mode . bash-ts-mode)))
-          (add-to-list 'major-mode-remap-alist mapping))
-        :config
-        (tb/setup-install-grammars)
-  )
+  (use-package ngxhtml-ts-mode)
+  (use-package treesit
+    :mode (
+           ("\\.component.html\\'"  . ngxhtml-ts-mode)
+           ;;("\\.html\\'"  . html-ts-mode)
+           ("\\.js\\'"  . typescript-ts-mode)
+           ("\\.mjs\\'" . typescript-ts-mode)
+           ("\\.mts\\'" . typescript-ts-mode)
+           ("\\.cjs\\'" . typescript-ts-mode)
+           ("\\.ts\\'"  . typescript-ts-mode)
+           ("\\.jsx\\'" . tsx-ts-mode)
+           ("\\.json\\'" .  json-ts-mode)
+           ("\\.Dockerfile\\'" . dockerfile-ts-mode)
+           ("\\.prisma\\'" . prisma-ts-mode)
+           ("\\.yaml\\'" . yaml-ts-mode)
+           ;; More modes defined here...
+           )
+    :preface
+    (defun tb/setup-install-grammars ()
+      "Install Tree-sitter grammars if they are absent."
+      (interactive)
+      (dolist (grammar
+               '((css . ("https://github.com/tree-sitter/tree-sitter-css"))
+                 (bash "https://github.com/tree-sitter/tree-sitter-bash")
+                 (html  "https://github.com/tree-sitter/tree-sitter-html")
+                 (angular  "https://github.com/dlvandenberg/tree-sitter-angular")
+                 (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+                 (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+                 (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+                 (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+                 (make "https://github.com/alemuller/tree-sitter-make")
+                 (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+                 (cmake "https://github.com/uyha/tree-sitter-cmake")
+                 (c "https://github.com/tree-sitter/tree-sitter-c")
+  	       (gdscript "https://github.com/PrestonKnopp/tree-sitter-gdscript")
+                 (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+                 (toml "https://github.com/tree-sitter/tree-sitter-toml")
+                 (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" ))
+  	       (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src"))
+                 (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
+                 (prisma "https://github.com/victorhqc/tree-sitter-prisma")))
+        (add-to-list 'treesit-language-source-alist grammar)
+        ;; Only install `grammar' if we don't already have it
+        ;; installed. However, if you want to *update* a grammar then
+        ;; this obviously prevents that from happening.
+        (unless (treesit-language-available-p (car grammar))
+          (treesit-install-language-grammar (car grammar)))))
 
+    ;; Optional, but recommended. Tree-sitter enabled major modes are
+    ;; distinct from their ordinary counterparts.
+    ;;
+    ;; You can remap major modes with `major-mode-remap-alist'. Note
+    ;; that this does *not* extend to hooks! Make sure you migrate them
+    ;; also
+    (dolist (mapping
+             '((python-mode . python-ts-mode)
+               (css-mode . css-ts-mode)
+               (typescript-mode . typescript-ts-mode)
+               (js-mode . typescript-ts-mode)
+               (js2-mode . typescript-ts-mode)
+               (c-mode . c-ts-mode)
+               (c++-mode . c++-ts-mode)
+               (c-or-c++-mode . c-or-c++-ts-mode)
+               (bash-mode . bash-ts-mode)
+               (css-mode . css-ts-mode)
+               (json-mode . json-ts-mode)
+               (js-json-mode . json-ts-mode)
+               (sh-mode . bash-ts-mode)
+               (sh-base-mode . bash-ts-mode)))
+      (add-to-list 'major-mode-remap-alist mapping))
+    :config
+    (tb/setup-install-grammars)
+    )
+
+  (provide 'tony-emacs-treesit)
+#+end_src
+** ~linter.el~
+
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-linter.el" :mkdirp yes
+  (use-package flycheck
+    :ensure t
+    :init (global-flycheck-mode)
+    :bind (:map flycheck-mode-map
+                ("M-n" . flycheck-next-error) ; optional but recommended error navigation
+                ("M-p" . flycheck-previous-error)))
+
+  (provide 'tony-emacs-linter)
 #+end_src
 
+** ~prettier.el~
 
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-prettier.el" :mkdirp yes
+  ;; auto-format different source code files extremely intelligently
+  ;; https://github.com/radian-software/apheleia
+  (use-package apheleia
+    :ensure apheleia
+    :diminish ""
+    :defines
+    apheleia-formatters
+    apheleia-mode-alist
+    :functions
+    apheleia-global-mode
+    :config
+    (setf (alist-get 'prettier-json apheleia-formatters)
+          '("prettier" "--stdin-filepath" filepath))
+    (apheleia-global-mode +1))
+
+  (provide 'tony-emacs-prettier)
+#+end_src
+
+** ~completion.el~
+
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-completion.el" :mkdirp yes
+    ;;;; Code Completion
+  ;;;; Code Completion
+  (use-package corfu
+    :ensure t
+    ;; Optional customizations
+    :custom
+    (corfu-cycle t)                 ; Allows cycling through candidates
+    (corfu-auto t)                  ; Enable auto completion
+    (corfu-auto-prefix 2)           ; Minimum length of prefix for completion
+    (corfu-auto-delay 0)            ; No delay for completion
+    (corfu-popupinfo-delay '(0.5 . 0.2))  ; Automatically update info popup after that numver of seconds
+    (corfu-preview-current 'insert) ; insert previewed candidate
+    (corfu-preselect 'prompt)
+    (corfu-on-exact-match nil)      ; Don't auto expand tempel snippets
+    ;; Optionally use TAB for cycling, default is `corfu-complete'.
+    :bind (:map corfu-map
+                ("M-SPC"      . corfu-insert-separator)
+                ("TAB"        . corfu-next)
+                ([tab]        . corfu-next)
+                ("S-TAB"      . corfu-previous)
+                ([backtab]    . corfu-previous)
+                ("S-<return>" . corfu-insert)
+                ("RET"        . corfu-insert))
+
+    :init
+    (global-corfu-mode)
+    (corfu-history-mode)
+    (corfu-popupinfo-mode) ; Popup completion info
+    :config
+    (add-hook 'eshell-mode-hook
+              (lambda () (setq-local corfu-quit-at-boundary t
+                                     corfu-quit-no-match t
+                                     corfu-auto nil)
+                (corfu-mode))
+              nil
+              t))
+  (provide 'tony-emacs-completion)
+#+end_src
+
+** ~lsp-mode.el~
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-lsp-mode.el" :mkdirp yes
+    ;; taken from github.com/yolksys
+    (use-package lsp-mode
+        :diminish "LSP"
+        :ensure t
+        :hook ((lsp-mode . lsp-diagnostics-mode)
+               (lsp-mode . lsp-enable-which-key-integration)
+               ((html-ts-mode
+                 typescript-ts-mode
+  	       go-ts-mode
+                 js-ts-mode) . lsp-deferred))
+        :custom
+        (lsp-keymap-prefix "C-l")           ; Prefix for LSP actions
+        (lsp-completion-provider :none)       ; Using company as the provider
+        (lsp-diagnostics-provider :flycheck)
+        (lsp-session-file (locate-user-emacs-file ".lsp-session"))
+        (lsp-log-io nil)                      ; IMPORTANT! Use only for debugging! Drastically affects performance
+        (lsp-keep-workspace-alive nil)        ; Close LSP server if all project buffers are closed
+        (lsp-idle-delay 0.5)                  ; Debounce timer for `after-change-function'
+        ;; core
+        (lsp-enable-xref nil)                   ; Use xref to find references
+        (lsp-auto-configure t)                ; Used to decide between current active servers
+        (lsp-eldoc-enable-hover t)            ; Display signature information in the echo area
+        (lsp-enable-dap-auto-configure t)     ; Debug support
+        (lsp-enable-file-watchers nil)
+        (lsp-enable-folding nil)              ; I disable folding since I use origami
+        (lsp-enable-imenu t)
+        (lsp-enable-indentation nil)          ; I use prettier
+        (lsp-enable-links nil)                ; No need since we have `browse-url'
+        (lsp-enable-on-type-formatting nil)   ; Prettier handles this
+        (lsp-enable-suggest-server-download t) ; Useful prompt to download LSP providers
+        (lsp-enable-symbol-highlighting t)     ; Shows usages of symbol at point in the current buffer
+        (lsp-enable-text-document-color nil)   ; This is Treesitter's job
+
+        (lsp-ui-sideline-show-hover nil)      ; Sideline used only for diagnostics
+        (lsp-ui-sideline-diagnostic-max-lines 20) ; 20 lines since typescript errors can be quite big
+        ;; completion
+        (lsp-completion-enable t)
+        (lsp-completion-enable-additional-text-edit t) ; Ex: auto-insert an import for a completion candidate
+        (lsp-enable-snippet t)                         ; Important to provide full JSX completion
+        (lsp-completion-show-kind t)                   ; Optional
+        ;; headerline
+        (lsp-headerline-breadcrumb-enable t)  ; Optional, I like the breadcrumbs
+        (lsp-headerline-breadcrumb-enable-diagnostics t) ; make them red
+        (lsp-headerline-breadcrumb-enable-symbol-numbers nil)
+        (lsp-headerline-breadcrumb-icons-enable nil)
+        ;; modeline
+        (lsp-modeline-code-actions-enable nil) ; Modeline should be relatively clean
+        (lsp-modeline-diagnostics-enable t)  ; Already supported through `flycheck'
+        (lsp-modeline-workspace-status-enable nil) ; Modeline displays "LSP" when lsp-mode is enabled
+        (lsp-signature-doc-lines 1)                ; Don't raise the echo area. It's distracting
+        (lsp-ui-doc-use-childframe t)              ; Show docs for symbol at point
+        (lsp-eldoc-render-all nil)            ; This would be very useful if it would respect `lsp-signature-doc-lines', currently it's distracting
+        ;; lens
+        (lsp-lens-enable nil)                 ; Optional, I don't need it
+        ;; semantic
+        (lsp-semantic-tokens-enable nil)      ; Related to highlighting, and we defer to treesitter
+
+        :preface
+        (defun lsp-booster--advice-json-parse (old-fn &rest args)
+          "Try to parse bytecode instead of json."
+          (or
+           (when (equal (following-char) ?#)
+
+             (let ((bytecode (read (current-buffer))))
+               (when (byte-code-function-p bytecode)
+                 (funcall bytecode))))
+           (apply old-fn args)))
+        (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+          "Prepend emacs-lsp-booster command to lsp CMD."
+          (let ((orig-result (funcall old-fn cmd test?)))
+            (if (and (not test?)                             ;; for check lsp-server-present?
+                     (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+                     lsp-use-plists
+                     (not (functionp 'json-rpc-connection))  ;; native json-rpc
+                     (executable-find "emacs-lsp-booster"))
+                (progn
+                  (message "Using emacs-lsp-booster for %s!" orig-result)
+                  (cons "emacs-lsp-booster" orig-result))
+              orig-result)))
+        ;; Initiate https://github.com/blahgeek/emacs-lsp-booster for performance
+        (advice-add (if (progn (require 'json)
+                               (fboundp 'json-parse-buffer))
+                        'json-parse-buffer
+                      'json-read)
+                    :around
+                    #'lsp-booster--advice-json-parse)
+        (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+        ;;:init
+        ;;(setq lsp-use-plists t)
+  )
+
+  (use-package lsp-completion
+    :no-require
+    :hook ((lsp-mode . lsp-completion-mode)))
+
+  (use-package which-key
+      :ensure t
+      :config
+      (which-key-mode))
+
+  (use-package lsp-ui
+    :ensure t
+    :commands
+    (lsp-ui-doc-show
+     lsp-ui-doc-glance)
+    :bind (:map lsp-mode-map
+                ("C-c C-d" . 'lsp-ui-doc-glance))
+    :after (lsp-mode)
+    :config (setq lsp-ui-doc-enable t
+                  lsp-ui-doc-show-with-cursor nil      ; Don't show doc when cursor is over symbol - too distracting
+                  lsp-ui-doc-include-signature t       ; Show signature
+                  lsp-ui-doc-position 'at-point))
+
+
+
+  ;; init.el
+  ;;;; per https://github.com/emacs-lsp/lsp-mode#performance
+  (setq read-process-output-max (* 10 1024 1024)) ;; 10mb
+  (setq gc-cons-threshold 200000000)
+
+  ;;(add-to-list 'warning-suppress-log-types '(lsp-mode))
+  ;;(add-to-list 'warning-suppress-types '(lsp-mode))
+  (provide 'tony-emacs-lsp-mode)
+#+end_src
