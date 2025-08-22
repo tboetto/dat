@@ -76,8 +76,10 @@
    (add-to-list 'load-path (locate-user-emacs-file string)))
  '("tony-lisp" "tony-emacs-modules"))
 
+(require 'tony-emacs-miscellaneous)
 (require 'tony-emacs-org)
 (require 'tony-emacs-project)
+(require 'tony-emacs-treemacs)
 (require 'tony-emacs-meow)
 (require 'tony-emacs-which-key)
 (require 'tony-emacs-doom-themes)
@@ -95,3 +97,4 @@
 (require 'tony-emacs-prettier)
 (require 'tony-emacs-treesit)
 (require 'tony-emacs-lsp-mode)
+(require 'tony-emacs-lsp-treemacs)
