@@ -4,10 +4,13 @@
 
 * ~early-init.el~
 
-**  Find gcc and libgccjit packages to be used for emacs on macOS
-
+** use plists (for lsp performance)
 #+begin_src emacs-lisp :tangle "early-init.el" :mkdirp yes
-  (setenv "LSP_USE_PLISTS" "true") ;; in early-init.el
+  (setenv "LSP_USE_PLISTS" "true")
+#+end_src
+
+**  Find gcc and libgccjit packages to be used for emacs on macOS
+#+begin_src emacs-lisp :tangle "early-init.el" :mkdirp yes
 
   (defun homebrew-gcc-paths ()
     "Return GCC library paths from Homebrew installations.
