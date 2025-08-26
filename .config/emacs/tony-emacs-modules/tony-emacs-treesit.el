@@ -1,4 +1,3 @@
-(use-package ngxhtml-ts-mode)
 (use-package treesit
   :mode (
          ("\\.component.html\\'"  . ngxhtml-ts-mode)
