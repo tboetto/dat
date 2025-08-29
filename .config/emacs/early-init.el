@@ -1,5 +1,7 @@
 (setenv "LSP_USE_PLISTS" "true")
 
+(setq package-enable-at-startup nil)
+
 (defun homebrew-gcc-paths ()
   "Return GCC library paths from Homebrew installations.
 Detects paths for gcc and libgccjit packages to be used in LIBRARY_PATH."

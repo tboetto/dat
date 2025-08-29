@@ -1,4 +1,3 @@
-(use-package ngxhtml-ts-mode)
 (use-package treesit
   :mode (
          ("\\.component.html\\'"  . ngxhtml-ts-mode)
@@ -34,9 +33,9 @@
                (c "https://github.com/tree-sitter/tree-sitter-c")
 	       (gdscript "https://github.com/PrestonKnopp/tree-sitter-gdscript")
                (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-               (toml "https://github.com/tree-sitter/tree-sitter-toml")
-               (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" ))
-	       (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src"))
+	       (toml . ("https://github.com/tree-sitter/tree-sitter-toml" "v0.5.1"))
+               (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src"))
+               (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "typescript/src"))
                (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
                (prisma "https://github.com/victorhqc/tree-sitter-prisma")))
       (add-to-list 'treesit-language-source-alist grammar)
