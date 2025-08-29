@@ -93,11 +93,6 @@
   :no-require
   :hook ((lsp-mode . lsp-completion-mode)))
 
-(use-package which-key
-    :ensure t
-    :config
-    (which-key-mode))
-
 (use-package lsp-ui
   :ensure t
   :commands

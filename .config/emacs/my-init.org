@@ -9,9 +9,13 @@
   (setenv "LSP_USE_PLISTS" "true")
 #+end_src
 
-**  Find gcc and libgccjit packages to be used for emacs on macOS
+** disable package for elpaca
 #+begin_src emacs-lisp :tangle "early-init.el" :mkdirp yes
+  (setq package-enable-at-startup nil)
+#+end_src
 
+** Find gcc and libgccjit packages to be used for emacs on macOS
+#+begin_src emacs-lisp :tangle "early-init.el" :mkdirp yes
   (defun homebrew-gcc-paths ()
     "Return GCC library paths from Homebrew installations.
   Detects paths for gcc and libgccjit packages to be used in LIBRARY_PATH."
@@ -66,9 +70,8 @@
 
 * ~init.el~
 
-**  Initialize package repositories
-
-#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
+** Initialize package repositories (no longer working elpaca now)
+#+begin_src emacs-lisp 
   (require 'package)
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
   ;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
@@ -77,7 +80,55 @@
   (package-initialize)
 #+end_src
 
-**  Basic emacs configuration
+** Initialize elpaca
+*** Install
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
+  (defvar elpaca-installer-version 0.11)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil :depth 1 :inherit ignore
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (<= emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                  ,@(when-let* ((depth (plist-get order :depth)))
+                                                      (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                  ,(plist-get order :repo) ,repo))))
+                  ((zerop (call-process "git" nil buffer t "checkout"
+                                        (or (plist-get order :ref) "--"))))
+                  (emacs (concat invocation-directory invocation-name))
+                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                  ((require 'elpaca))
+                  ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
+#+end_src
+*** use-package integration
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
+  (elpaca elpaca-use-package
+  ;; Enable Elpaca support for use-package's :ensure keyword.
+  (elpaca-use-package-mode))
+#+end_src
+** Basic emacs configuration
 
 *** Start emacs maximized
 
@@ -215,6 +266,7 @@
   (require 'tony-emacs-lsp-mode)
   ;;(require 'tony-emacs-lsp-treemacs)
   (require 'tony-emacs-ngx)
+  (require 'tony-emacs-lsp-biome)
 
 #+end_src
 
@@ -1108,8 +1160,136 @@
 ** ~magit.el~
 *** use and config magit
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-magit.el" :mkdirp yes
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;                MAGIT               ;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; remove last unmerged commit (set as unstaged change)
+  ;; (magit-reset-soft "HEAD~1"))
+
+  ;; (use-package compat
+  ;;   :defer t
+  ;;   :ensure (compat :type git :host github :repo "emacs-compat/compat"))
+
+  (use-package transient
+    :defer t
+    :ensure (transient :type git :host github :repo "magit/transient")
+    :config
+
+    (transient-define-prefix hrm-help-transient ()
+  	"Help commands."
+  	["Help Commands"
+  	 ["Mode & Bindings"
+  	  ("m" "Mode" describe-mode)
+  	  ("M" "Minor Modes" consult-minor-mode-menu)
+  	  ("b" "Major Bindings" which-key-show-full-major-mode)
+  	  ("B" "Minor Bindings" which-key-show-full-minor-mode-keymap)
+  	  ("d" "Descbinds" describe-bindings) ; or embark-bindings
+  	  ("t" "Top Bindings  " which-key-show-top-level)
+  	  ]
+  	 ["Describe"
+  	  ("C" "Command" helpful-command)
+  	  ("f" "Function" helpful-callable)
+  	  ("v" "Variable " helpful-variable)
+  	  ("k" "Key" helpful-key)
+  	  ("s" "Symbol" helpful-symbol)
+  	  ("l" "Library" apropos-library)
+  	  ]
+  	 ["Info on"
+  	  ("C-c" "Command" Info-goto-emacs-command-node)
+  	  ("C-f" "Function" info-lookup-symbol)
+  	  ("C-v" "Variable" info-lookup-symbol) ; fails if transient-detect-key-conflicts
+  	  ("C-k" "Key" Info-goto-emacs-key-command-node)
+  	  ("C-s" "Symbol" info-lookup-symbol)
+  	  ]
+  	 ["Goto Source"
+  	  ""
+  	  ("F" "Function" find-function-other-frame)
+  	  ("V" "Variable" find-variable-other-frame)
+  	  ("K" "Key" find-function-on-key-other-frame)
+  	  ""
+  	  ("L" "Library" find-library-other-frame)
+  	  ]
+  	 ["Apropos"
+  	  ("ac" "Command" apropos-command)
+  	  ("af" "Function" apropos-function)
+  	  ("av" "Variable" apropos-variable)
+  	  ("aV" "Value" apropos-value)
+  	  ("aL" "Local Value" apropos-local-value)
+  	  ("ad" "Documentation" apropos-documentation)
+  	  ]
+  	 ]
+  	[
+  	 ["Internals"
+  	  ("I" "Input Method" describe-input-method)
+  	  ("G" "Language Env" describe-language-environment)
+  	  ("S" "Syntax" describe-syntax)
+  	  ("T" "Categories" describe-categories)
+  	  ("O" "Coding System" describe-coding-system)
+  	  ("o" "Coding Briefly" describe-current-coding-system-briefly)
+  	  ("T" "Display Table" describe-current-display-table)
+  	  ("e" "Echo Messages" view-echo-area-messages)
+  	  ("H" "Lossage" view-lossage)
+  	  ]
+  	 ["Describe"
+  	  ("." "At Point" helpful-at-point)
+  	  ("c" "Key Short" describe-key-briefly)
+  	  ("p" "Key Map" describe-keymap)
+  	  ("A" "Face" describe-face)
+  	  ("i" "Icon" describe-icon)
+  	  ("w" "Where Is" where-is)
+  	  ("=" "Position" what-cursor-position)
+  	  ("g" "Shortdoc" shortdoc-display-group)
+  	  ]
+  	 ["Info Manuals"
+  	  ("C-i" "Info" info)
+  	  ("C-4" "Other Window" info-other-window)
+  	  ("C-e" "Emacs" info-emacs-manual)
+  	  ;; ("C-l" "Elisp" info-elisp-manual)
+  	  ("C-r" "Pick Manual" info-display-manual)
+  	  ]
+  	 ["External"
+  	  ("N" "Man" consult-man)
+  	  ;; ("W" "Dictionary" lookup-word-at-point)
+  	  ;; ("D" "Dash" dash-at-point)
+  	  ]
+  	 ]
+  	)
+    (global-set-key (kbd "C-S-h") 'hrm-help-transient)
+    )
+
   (use-package magit
-    :ensure t)
+    ;; fixes emacs 29 issue with old transient package (dependency)
+    ;; :ensure (:tag "v3.3.0")
+    ;; :after compat
+    :after transient
+    :defer t
+    :config
+    ;; ;; updates modeline with branch. higher cost than hook
+    ;; (setq auto-revert-check-vc-info t
+    ;;       auto-revert-interval 10)
+
+    ;; show  all options in transient
+    (setq transient-default-level 7)
+
+    ;; full screen magit
+    (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
+    (setq magit-remote-add-set-remote.pushDefault nil)
+    (setopt magit-format-file-function #'magit-format-file-all-the-icons)) ;; for v4.3.0+
+
+  (use-package magit-blame-color-by-age
+    :ensure (magit-blame-color-by-age :type git :host github :repo "jdtsmith/magit-blame-color-by-age")
+    :after magit
+    :config (magit-blame-color-by-age-mode))
+
+  ;; (defadvice vc-git-mode-line-string (after plus-minus (file) compile activate)
+  ;;   (setq ad-return-value
+  ;; 	(concat ad-return-value
+  ;; 		(let ((plus-minus (vc-git--run-command-string
+  ;; 				   file "diff" "--numstat" "--")))
+  ;; 		  (and plus-minus
+  ;; 		       (string-match "^\\([0-9]+\\)\t\\([0-9]+\\)\t" plus-minus)
+  ;; 		       (format " +%s-%s" (match-string 1 plus-minus) (match-string 2 plus-minus)))))))
 #+end_src
 *** provide module
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-magit.el" :mkdirp yes
@@ -1222,24 +1402,32 @@
 
   (provide 'tony-emacs-linter)
 #+end_src
-
+** ~lsp-biome.el~
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-lsp-biome.el" :mkdirp yes
+  (use-package lsp-biome
+    :ensure (:host github :repo "cxa/lsp-biome")
+    :config
+    (setq lsp-biome-organize-imports-on-save t)
+    (setq lsp-biome-autofix-on-save t)
+    (setq lsp-biome-format-on-save t)
+    ;;(setq lsp-biome-active-file-types (list (rx "." (or "tsx" "jsx"
+    ;;                "ts" "js"
+    ;;                "mts" "mjs"
+    ;;                "cts" "cjs"
+    ;;                "json" "jsonc")
+    ;;        eos)))
+      )
+  (provide 'tony-emacs-lsp-biome)
+#+end_src
 ** ~prettier.el~
-
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-prettier.el" :mkdirp yes
   ;; auto-format different source code files extremely intelligently
   ;; https://github.com/radian-software/apheleia
   (use-package apheleia
-    :ensure apheleia
-    :diminish ""
-    :defines
-    apheleia-formatters
-    apheleia-mode-alist
-    :functions
-    apheleia-global-mode
+    :ensure t
     :config
-    (setf (alist-get 'prettier-json apheleia-formatters)
-          '("prettier" "--stdin-filepath" filepath))
-    (apheleia-global-mode +1))
+    (apheleia-global-mode t))
+
 
   (provide 'tony-emacs-prettier)
 #+end_src
@@ -1383,11 +1571,6 @@
     :no-require
     :hook ((lsp-mode . lsp-completion-mode)))
 
-  (use-package which-key
-      :ensure t
-      :config
-      (which-key-mode))
-
   (use-package lsp-ui
     :ensure t
     :commands
@@ -1423,147 +1606,145 @@
 
 ** ~ngx.el~
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-ngx.el" :mkdirp yes
-  ;;; lsp-ngx.el --- description -*- lexical-binding: t; -*-
+    ;;; lsp-ngx.el --- description -*- lexical-binding: t; -*-
 
-  ;; Copyright (C) 2020 emacs-lsp maintainers
+    ;; Copyright (C) 2020 emacs-lsp maintainers
 
-  ;; Author: emacs-lsp maintainers
-  ;; Keywords: lsp,
+    ;; Author: emacs-lsp maintainers
+    ;; Keywords: lsp,
 
-  ;; This program is free software; you can redistribute it and/or modify
-  ;; it under the terms of the GNU General Public License as published by
-  ;; the Free Software Foundation, either version 3 of the License, or
-  ;; (at your option) any later version.
+    ;; This program is free software; you can redistribute it and/or modify
+    ;; it under the terms of the GNU General Public License as published by
+    ;; the Free Software Foundation, either version 3 of the License, or
+    ;; (at your option) any later version.
 
-  ;; This program is distributed in the hope that it will be useful,
-  ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ;; GNU General Public License for more details.
+    ;; This program is distributed in the hope that it will be useful,
+    ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+    ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    ;; GNU General Public License for more details.
 
-  ;; You should have received a copy of the GNU General Public License
-  ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    ;; You should have received a copy of the GNU General Public License
+    ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-  ;;; Commentary:
+    ;;; Commentary:
 
-  ;; LSP Clients for the ngx Web application framework.
+    ;; LSP Clients for the ngx Web application framework.
 
-  ;;; Code:
-
-  (require 'lsp-mode)
-  (require 'f)
-
-  (use-package ngxhtml-ts-mode)
-
-  (add-hook 'ngxhtml-ts-mode-hook #'lsp-deferred)
-
-  ;;; for formatter
-  (push '(prettier-ngxhtml . ( "apheleia-npx" "prettier" "--stdin-filepath" filepath
-                  "--parser=angular"
-                  (apheleia-formatters-js-indent "--use-tabs"
-                                                 "--tab-width")))
-        apheleia-formatters)
-  (push '(ngxhtml-ts-mode . prettier-ngxhtml)
-        apheleia-mode-alist)
-  ;;; uncomment this to disable formater
-  ;;;(defun ngxhtml-setting-hooks ()
-  ;;;  (apheleia-mode -1))
-  ;;;(add-hook 'ngxhtml-ts-mode-hook #'ngxhtml-setting-hooks)
-
-  ;;;(defvar-local node-path (shell-command-to-string "which node"))
-
-  ;;; ngx
-  (defgroup lsp-ngx nil
-    "ngx LSP client, provided by the ngx Language Service Server."
-    :group 'lsp-mode
-    :version "8.0.0"
-    :link '(url-link "https://github.com/ngx/vscode-ng-language-service"))
-
-  (defcustom lsp-clients-ngx-language-server-command
-    nil
-    "The command that starts the ngx language server."
-    :group 'lsp-ngx
-    :type '(choice
-            (string :tag "Single string value")
-            (repeat :tag "List of string values"
-                    string)))
-
-  (defcustom lsp-clients-ngx-node-get-prefix-command
-    "npm config get --global prefix"
-    "The shell command that returns the path of NodeJS's prefix.
-  Has no effects when `lsp-clients-ngx-language-server-command' is set."
-    :group 'lsp-ngx
-    :type 'string)
-
-  (defun lsp-client--ngx-start-loading (_workspace params)
-    (lsp--info "Started loading project %s" params))
-
-  (defun lsp-client--ngx-finished-loading (_workspace params)
-    (lsp--info "Finished loading project %s" params))
-
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection
-    (lsp-stdio-connection
-     (lambda ()
-       (if lsp-clients-ngx-language-server-command
-           lsp-clients-ngx-language-server-command
-         (let ((node-modules-path
-                (f-join
-                 (string-trim
-                  (shell-command-to-string lsp-clients-ngx-node-get-prefix-command))
-                 (if (eq system-type 'windows-nt)
-                     "node_modules"
-                   "lib/node_modules"))))
-           ;; The shell command takes a significant time to run,
-           ;; so we "cache" its results after running once
-           (setq lsp-clients-ngx-language-server-command
-                 (list
-                  "ngserver"
-                  "--stdio"
-                  "--tsProbeLocations"
-                  node-modules-path
-                  "--ngProbeLocations"
-                  (f-join node-modules-path "@ngx/language-server/node_modules/")))
-           lsp-clients-ngx-language-server-command))))
-      :activation-fn
-      
-  (lambda (&rest _args)
-    (and (string-match-p "\\(\\.html\\|\\.ts\\)\\'" (buffer-file-name))
-         (lsp-workspace-root)
-         ;; Use 'or' to check for either 'angular.json' or the '.angular' directory
-         (or (file-exists-p (f-join (lsp-workspace-root) "angular.json"))
-             (file-directory-p (f-join (lsp-workspace-root) ".angular")))))
-    :priority -1
-    :notification-handlers
-    (ht ("angular/projectLoadingStart" #'lsp-client--ngx-start-loading)
-        ("angular/projectLoadingFinish" #'lsp-client--ngx-finished-loading)
-        ("angular/projectLanguageService" #'ignore))
-    :add-on? t
-    :server-id 'ngx-ls))
+    ;;; Code:
 
 
-  (lsp-consistency-check lsp-ngx)
+    (use-package ngxhtml-ts-mode)
 
-  ;;;
-  ;;;(with-eval-after-load 'lsp-mode
-  ;;;  (add-to-list 'lsp-language-id-configuration
-  ;;;               '(ngxhtml-ts-mode . "ngxhtml"))
-  ;;;
-  ;;;  (lsp-register-client
-  ;;;   (make-lsp-client :new-connection
-  ;;;                    (lsp-stdio-connection
-  ;;;                     '("node"
-  ;;;                       "/home/cyf/.nvm/versions/node/v23.8.0/lib/node_modules/@angular/language-server"
-  ;;;                       "--ngProbeLocations"
-  ;;;                       "/home/cyf/.nvm/versions/node/v23.8.0/lib/node_modules"
-  ;;;                       "--tsProbeLocations"
-  ;;;                       "/home/cyf/.nvm/versions/node/v23.8.0/lib/node_modules/"
-  ;;;                       "--stdio"))
-  ;;;                    :activation-fn (lsp-activate-on "ngxhtml")
-  ;;;                    :server-id 'ngxhtml-ls
-  ;;;		   :notification-handlers (ht ("angular/projectLoadingStart" #'ignore)
-  ;;;                                               ("angular/projectLoadingFinish" #'ignore)))))
+    (add-hook 'ngxhtml-ts-mode-hook #'lsp-deferred)
 
-    (provide 'tony-emacs-ngx)
-  ;;; tony-emacs-ngx.el ends here
+    ;;; for formatter
+    ;;(push '(prettier-ngxhtml . ( "apheleia-npx" "prettier" "--stdin-filepath" filepath
+                    ;;"--parser=angular"
+                    ;;(apheleia-formatters-js-indent "--use-tabs"
+                                                   ;;"--tab-width")))
+          ;;apheleia-formatters)
+    ;;(push '(ngxhtml-ts-mode . prettier-ngxhtml)
+          ;;apheleia-mode-alist)
+    ;;; uncomment this to disable formater
+    ;;;(defun ngxhtml-setting-hooks ()
+    ;;;  (apheleia-mode -1))
+    ;;;(add-hook 'ngxhtml-ts-mode-hook #'ngxhtml-setting-hooks)
+
+    ;;;(defvar-local node-path (shell-command-to-string "which node"))
+  (with-eval-after-load 'lsp-mode
+    ;;; ngx
+    (defgroup lsp-ngx nil
+      "ngx LSP client, provided by the ngx Language Service Server."
+      :group 'lsp-mode
+      :version "8.0.0"
+      :link '(url-link "https://github.com/ngx/vscode-ng-language-service"))
+
+    (defcustom lsp-clients-ngx-language-server-command
+      nil
+      "The command that starts the ngx language server."
+      :group 'lsp-ngx
+      :type '(choice
+              (string :tag "Single string value")
+              (repeat :tag "List of string values"
+                      string)))
+
+    (defcustom lsp-clients-ngx-node-get-prefix-command
+      "npm config get --global prefix"
+      "The shell command that returns the path of NodeJS's prefix.
+    Has no effects when `lsp-clients-ngx-language-server-command' is set."
+      :group 'lsp-ngx
+      :type 'string)
+
+    (defun lsp-client--ngx-start-loading (_workspace params)
+      (lsp--info "Started loading project %s" params))
+
+    (defun lsp-client--ngx-finished-loading (_workspace params)
+      (lsp--info "Finished loading project %s" params))
+
+    (lsp-register-client
+     (make-lsp-client
+      :new-connection
+      (lsp-stdio-connection
+       (lambda ()
+         (if lsp-clients-ngx-language-server-command
+             lsp-clients-ngx-language-server-command
+           (let ((node-modules-path
+                  (f-join
+                   (string-trim
+                    (shell-command-to-string lsp-clients-ngx-node-get-prefix-command))
+                   (if (eq system-type 'windows-nt)
+                       "node_modules"
+                     "lib/node_modules"))))
+             ;; The shell command takes a significant time to run,
+             ;; so we "cache" its results after running once
+             (setq lsp-clients-ngx-language-server-command
+                   (list
+                    "ngserver"
+                    "--stdio"
+                    "--tsProbeLocations"
+                    node-modules-path
+                    "--ngProbeLocations"
+                    (f-join node-modules-path "@ngx/language-server/node_modules/")))
+             lsp-clients-ngx-language-server-command))))
+        :activation-fn
+        
+    (lambda (&rest _args)
+      (and (string-match-p "\\(\\.html\\|\\.ts\\)\\'" (buffer-file-name))
+           (lsp-workspace-root)
+           ;; Use 'or' to check for either 'angular.json' or the '.angular' directory
+           (or (file-exists-p (f-join (lsp-workspace-root) "angular.json"))
+               (file-directory-p (f-join (lsp-workspace-root) ".angular")))))
+      :priority -1
+      :notification-handlers
+      (ht ("angular/projectLoadingStart" #'lsp-client--ngx-start-loading)
+          ("angular/projectLoadingFinish" #'lsp-client--ngx-finished-loading)
+          ("angular/projectLanguageService" #'ignore))
+      :add-on? t
+      :server-id 'ngx-ls))
+
+
+    (lsp-consistency-check lsp-ngx)
+
+    ;;;
+    ;;;(with-eval-after-load 'lsp-mode
+    ;;;  (add-to-list 'lsp-language-id-configuration
+    ;;;               '(ngxhtml-ts-mode . "ngxhtml"))
+    ;;;
+    ;;;  (lsp-register-client
+    ;;;   (make-lsp-client :new-connection
+    ;;;                    (lsp-stdio-connection
+    ;;;                     '("node"
+    ;;;                       "/home/cyf/.nvm/versions/node/v23.8.0/lib/node_modules/@angular/language-server"
+    ;;;                       "--ngProbeLocations"
+    ;;;                       "/home/cyf/.nvm/versions/node/v23.8.0/lib/node_modules"
+    ;;;                       "--tsProbeLocations"
+    ;;;                       "/home/cyf/.nvm/versions/node/v23.8.0/lib/node_modules/"
+    ;;;                       "--stdio"))
+    ;;;                    :activation-fn (lsp-activate-on "ngxhtml")
+    ;;;                    :server-id 'ngxhtml-ls
+    ;;;		   :notification-handlers (ht ("angular/projectLoadingStart" #'ignore)
+    ;;;                                               ("angular/projectLoadingFinish" #'ignore)))))
+  )
+      (provide 'tony-emacs-ngx)
+    ;;; tony-emacs-ngx.el ends here
 #+end_src
