@@ -69,6 +69,7 @@
     (add-to-list 'major-mode-remap-alist mapping))
   :config
   (tb/setup-install-grammars)
+  (setq treesit-font-lock-level 6)
   )
 
 (provide 'tony-emacs-treesit)

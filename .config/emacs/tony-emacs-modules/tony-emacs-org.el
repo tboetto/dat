@@ -12,4 +12,15 @@
   :config
   (setq org-agenda-files (list org-directory)))
 
+(use-package org-modern
+  :ensure t
+  :hook
+  (org-mode . org-modern-mode)
+  )
+
+(use-package org-appear
+  :ensure t
+  :hook
+  (org-mode . org-appear-mode))
+
 (provide 'tony-emacs-org)

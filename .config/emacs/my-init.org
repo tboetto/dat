@@ -557,6 +557,23 @@
     (setq org-agenda-files (list org-directory)))
 #+end_src
 
+*** org modern set up
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
+  (use-package org-modern
+    :ensure t
+    :hook
+    (org-mode . org-modern-mode)
+    )
+#+end_src
+
+*** org appear set up
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
+  (use-package org-appear
+    :ensure t
+    :hook
+    (org-mode . org-appear-mode))
+#+end_src
+
 *** provide module
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
   (provide 'tony-emacs-org)
@@ -1386,6 +1403,7 @@
       (add-to-list 'major-mode-remap-alist mapping))
     :config
     (tb/setup-install-grammars)
+    (setq treesit-font-lock-level 6)
     )
 
   (provide 'tony-emacs-treesit)
@@ -1407,29 +1425,42 @@
   (use-package lsp-biome
     :ensure (:host github :repo "cxa/lsp-biome")
     :config
-    (setq lsp-biome-organize-imports-on-save t)
-    (setq lsp-biome-autofix-on-save t)
-    (setq lsp-biome-format-on-save t)
-    ;;(setq lsp-biome-active-file-types (list (rx "." (or "tsx" "jsx"
-    ;;                "ts" "js"
-    ;;                "mts" "mjs"
-    ;;                "cts" "cjs"
-    ;;                "json" "jsonc")
-    ;;        eos)))
-      )
+    (setq lsp-biome-organize-imports-on-save nil)
+    (setq lsp-biome-autofix-on-save nil)
+    (setq lsp-biome-format-on-save nil)
+    )
   (provide 'tony-emacs-lsp-biome)
 #+end_src
 ** ~prettier.el~
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-prettier.el" :mkdirp yes
-  ;; auto-format different source code files extremely intelligently
-  ;; https://github.com/radian-software/apheleia
+     ;; auto-format different source code files extremely intelligently
+     ;; https://github.com/radian-software/apheleia
   (use-package apheleia
     :ensure t
+    :diminish
     :config
-    (apheleia-global-mode t))
+    (apheleia-global-mode 1)
+    (setq apheleia-log-debug-info 1)
 
+    ;; Configure prettierd formatter
+    (setf (alist-get 'prettierd apheleia-formatters)
+        '("prettierd" "--stdin-filepath" filepath))
+    ;; Update mode associations to use prettierd instead of prettier
+    (setf (alist-get 'js-mode apheleia-mode-alist) 'prettierd)
+    (setf (alist-get 'js-ts-mode apheleia-mode-alist) 'prettierd)
+    (setf (alist-get 'typescript-mode apheleia-mode-alist) 'prettierd)
+    (setf (alist-get 'typescript-ts-mode apheleia-mode-alist) 'prettierd)
+    (setf (alist-get 'tsx-ts-mode apheleia-mode-alist) 'prettierd)
+    (setf (alist-get 'json-mode apheleia-mode-alist) 'prettierd)
+    (setf (alist-get 'json-ts-mode apheleia-mode-alist) 'prettierd)
+    (setf (alist-get 'css-mode apheleia-mode-alist) 'prettierd)
+    (setf (alist-get 'css-ts-mode apheleia-mode-alist) 'prettierd)
+    (setf (alist-get 'html-mode apheleia-mode-alist) 'prettierd)
+    (setf (alist-get 'web-mode apheleia-mode-alist) 'prettierd)
+    (setf (alist-get 'ngxhtml-ts-mode apheleia-mode-alist) 'prettierd)
+  )
 
-  (provide 'tony-emacs-prettier)
+     (provide 'tony-emacs-prettier)
 #+end_src
 
 ** ~completion.el~
