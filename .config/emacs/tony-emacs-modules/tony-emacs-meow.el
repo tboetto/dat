@@ -1,9 +1,7 @@
 (defun meow-setup ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
   (meow-motion-overwrite-define-key
-   '("j" . meow-next)
-   '("k" . meow-prev)
-   '("<escape>" . ignore))
+   '("j" . meow-next) '("k" . meow-prev) '("<escape>" . ignore))
   (meow-leader-define-key
    ;; SPC j/k will run the original command in MOTION state.
    '("j" . "H-j")
@@ -84,11 +82,6 @@
    '("'" . repeat)
    '("<escape>" . ignore)))
 
-(use-package meow
-  :ensure t
-  :config
-  (meow-setup)
-  (meow-global-mode 1)
-  )
+(use-package meow :ensure t :config (meow-setup) (meow-global-mode 1))
 
 (provide 'tony-emacs-meow)

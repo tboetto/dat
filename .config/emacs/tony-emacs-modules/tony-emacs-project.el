@@ -1,4 +1,3 @@
-(use-package project
-  :ensure nil)
+(use-package project :ensure nil)
 
 (provide 'tony-emacs-project)
