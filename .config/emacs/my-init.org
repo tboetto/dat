@@ -1573,7 +1573,6 @@
  :diminish
  :config
  (apheleia-global-mode 1)
- (setq apheleia-log-debug-info 1)
 
  ;; Configure prettierd formatter
  (setf (alist-get 'prettierd apheleia-formatters)
