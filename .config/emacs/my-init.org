@@ -624,7 +624,6 @@
 #+end_src
 
 ** ~org.el~
-
 *** org mode setup
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
 (use-package
@@ -896,7 +895,6 @@
 #+end_src
 
 ** ~doom-themes.el~
-
 *** use and config doom themes
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-themes.el" :mkdirp yes
 (use-package
@@ -926,7 +924,6 @@
 #+end_src
 
 ** ~solaire-mode.el~
-
 *** use and config solaire mode
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-solaire-mode.el" :mkdirp yes
 (use-package solaire-mode :ensure t :config (solaire-global-mode +1))
@@ -938,7 +935,6 @@
 #+end_src
 
 ** ~doom-modeline.el~
-
 *** use and config doom modeline
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-doom-modeline.el" :mkdirp yes
 (use-package doom-modeline :ensure t :init (doom-modeline-mode 1))
