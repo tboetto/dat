@@ -6,8 +6,7 @@
  apheleia
  :ensure t
  :diminish
- :config
- (apheleia-global-mode 1)
+ :config (apheleia-global-mode 1)
 
  ;; Configure prettierd formatter
  (setf (alist-get 'prettierd apheleia-formatters)
