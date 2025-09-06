@@ -102,6 +102,10 @@
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 
+(setq make-backup-files nil)
+(setq backup-inhibited nil) ;Not sure if needed, given `make-backup-files` above
+(setq create-lockfiles nil)
+
 (global-display-line-numbers-mode 1)
 (hl-line-mode 1)
 
@@ -173,6 +177,7 @@
 (require 'tony-emacs-orderless)
 (require 'tony-emacs-consult)
 (require 'tony-emacs-magit)
+(require 'tony-emacs-blamer)
 (require 'tony-emacs-denote)
 (require 'tony-emacs-completion)
 (require 'tony-emacs-linter)

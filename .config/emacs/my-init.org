@@ -217,6 +217,14 @@
 (scroll-bar-mode -1)
 #+end_src
 
+*** Disable backups and lockfiles
+By default emacs tries to lockdown and backup files. I want to be able to open and edit in other editors, and backups are messing with my imports
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
+(setq make-backup-files nil)
+(setq backup-inhibited nil) ;Not sure if needed, given `make-backup-files` above
+(setq create-lockfiles nil)
+#+end_src
+
 *** Enable buffer line numbers
 #+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
 (global-display-line-numbers-mode 1)
@@ -317,6 +325,7 @@
 (require 'tony-emacs-orderless)
 (require 'tony-emacs-consult)
 (require 'tony-emacs-magit)
+(require 'tony-emacs-blamer)
 (require 'tony-emacs-denote)
 (require 'tony-emacs-completion)
 (require 'tony-emacs-linter)
@@ -1415,6 +1424,25 @@
 (provide 'tony-emacs-magit)
 #+end_src
 
+** ~blamer.el~
+*** use and config blamer
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-blamer.el" :mkdirp yes
+(use-package
+ blamer
+ :ensure (:host github :repo "artawower/blamer.el")
+ :bind (("s-i" . blamer-show-commit-info))
+ :custom (blamer-idle-time 0.3) (blamer-min-offset 70)
+ :custom-face
+ (blamer-face
+  ((t :foreground "#7a88cf" :background nil :height 140 :italic t)))
+ :config (global-blamer-mode 1))
+#+end_src
+
+*** provide blamer
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-blamer.el" :mkdirp yes
+(provide 'tony-emacs-blamer)
+#+end_src
+
 ** ~denote.el~
 *** use and config denote
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
@@ -1581,6 +1609,7 @@
  (setf (alist-get 'json-mode apheleia-mode-alist) 'prettierd)
  (setf (alist-get 'json-ts-mode apheleia-mode-alist) 'prettierd)
  (setf (alist-get 'css-mode apheleia-mode-alist) 'prettierd)
+ (setf (alist-get 'scss-mode apheleia-mode-alist) 'prettierd)
  (setf (alist-get 'css-ts-mode apheleia-mode-alist) 'prettierd)
  (setf (alist-get 'html-mode apheleia-mode-alist) 'prettierd)
  (setf (alist-get 'web-mode apheleia-mode-alist) 'prettierd)
