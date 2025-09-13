@@ -86,15 +86,15 @@
 
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 
-(pcase system-type
-  ((or 'gnu/linux 'windows-nt 'cygwin)
-   (set-face-attribute 'default nil
-                       :family "Iosevka Nerd Font Mono"
-                       :weight 'regular))
-  ('darwin
-   (set-face-attribute 'default nil
-                       :family "IosevkaTerm Nerd Font Mono"
-                       :weight 'regular)))
+;; (pcase system-type
+;;   ((or 'gnu/linux 'windows-nt 'cygwin)
+;;    (set-face-attribute 'default nil
+;;                        :family "Iosevka Nerd Font Mono"
+;;                        :weight 'regular))
+;;   ('darwin
+;;    (set-face-attribute 'default nil
+;;                        :family "IosevkaTerm Nerd Font Mono"
+;;                        :weight 'regular)))
 
 (setq ring-bell-function #'ignore)
 (setq inhibit-startup-message t)
@@ -166,12 +166,14 @@
 (require 'tony-emacs-org)
 (require 'tony-emacs-project)
 ;;(require 'tony-emacs-treemacs)
+(require 'tony-emacs-fonts)
+(require 'tony-emacs-nerd-icons)
 (require 'tony-emacs-meow)
 (require 'tony-emacs-which-key)
 (require 'tony-emacs-doom-themes)
 (require 'tony-emacs-solaire-mode)
 (require 'tony-emacs-doom-modeline)
-(require 'tony-emacs-textsize)
+;(require 'tony-emacs-textsize)
 (require 'tony-emacs-vertico)
 (require 'tony-emacs-marginalia)
 (require 'tony-emacs-orderless)
