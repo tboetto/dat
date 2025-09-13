@@ -19,100 +19,105 @@
   "Separate setups for fonts in WSL and regular GNU/Linux."
   (if (getenv "WSL_DISTRO_NAME")
       (setq
-       my-font-height 250
-       my-small-font-height 190
-       my-medium-font-height 320
-       my-large-font-height 530
-       my-presentation-font-height 950)
+       my-font-height 200
+       my-extra-small-font-height 100
+       my-small-font-height 150
+       my-medium-font-height 250
+       my-large-font-height 350
+       my-presentation-font-height 650)
     (setq
      my-font-height 200
-     my-small-font-height 190
-     my-medium-font-height 320
-     my-large-font-height 530
-     my-presentation-font-height 950)))
+     my-extra-small-font-height 100
+     my-small-font-height 150
+     my-medium-font-height 250
+     my-large-font-height 350
+     my-presentation-font-height 650)))
 
 (if (eq system-type 'darwin)
     (setq
-     my-font-height 130
-     my-small-font-height 120
-     my-medium-font-height 140
-     my-large-font-height 160
-     my-presentation-font-height 200)
+     my-font-height 200
+     my-extra-small-font-height 100
+     my-small-font-height 150
+     my-medium-font-height 250
+     my-large-font-height 350
+     my-presentation-font-height 650)
+
   (my-setup-linux-fonts))
 
 (use-package
-  fontaine
-  :ensure t
-  :init (fontaine-mode 1)
-  ;; Persist the latest font preset when closing/starting Emacs and
-  ;; while switching between themes.
-  :bind (("C-c f" . fontaine-set-preset) ("C-c F" . fontaine-toggle-preset))
-  :custom
-  (fontaine-latest-state-file
-   (locate-user-emacs-file "fontaine-latest-state.eld"))
-  (fontaine-presets
-   `((small :default-height ,my-small-font-height)
-     (regular) ; like this it uses all the fallback values and is named
-					; `regular'
-     (medium :default-height ,my-medium-font-height)
-     (large :default-height ,my-large-font-height)
-     (presentation :default-height ,my-presentation-font-height)
-     (t
-      ;; I keep all properties for didactic purposes, but most can be omitted.
-      ;; See the fontaine manual for the technicalities:
-      ;; <https://protesilaos.com/emacs/fontaine>.
-      :default-family ,my-default-font
-      :default-weight regular
-      :default-height ,my-font-height
+ fontaine
+ :ensure t
+ :init (fontaine-mode 1)
+ ;; Persist the latest font preset when closing/starting Emacs and
+ ;; while switching between themes.
+ :bind (("C-c f" . fontaine-set-preset) ("C-c F" . fontaine-toggle-preset))
+ :custom
+ (fontaine-latest-state-file
+  (locate-user-emacs-file "fontaine-latest-state.eld"))
+ (fontaine-presets
+  `((extra-small :default-height ,my-extra-small-font-height)
+    (small :default-height ,my-small-font-height)
+    (regular) ; like this it uses all the fallback values and is named
+    ; `regular'
+    (medium :default-height ,my-medium-font-height)
+    (large :default-height ,my-large-font-height)
+    (presentation :default-height ,my-presentation-font-height)
+    (t
+     ;; I keep all properties for didactic purposes, but most can be omitted.
+     ;; See the fontaine manual for the technicalities:
+     ;; <https://protesilaos.com/emacs/fontaine>.
+     :default-family ,my-default-font
+     :default-weight regular
+     :default-height ,my-font-height
 
-      :fixed-pitch-family ,my-default-font ; falls back to :default-family
-      :fixed-pitch-weight nil ; falls back to :default-weight
-      :fixed-pitch-height 1.0 ;,(/ 1 1.1)
+     :fixed-pitch-family ,my-default-font ; falls back to :default-family
+     :fixed-pitch-weight nil ; falls back to :default-weight
+     :fixed-pitch-height 1.0 ;,(/ 1 1.1)
 
-      :fixed-pitch-serif-family nil ; falls back to :default-family
-      :fixed-pitch-serif-weight nil ; falls back to :default-weight
-      :fixed-pitch-serif-height 1.0
+     :fixed-pitch-serif-family nil ; falls back to :default-family
+     :fixed-pitch-serif-weight nil ; falls back to :default-weight
+     :fixed-pitch-serif-height 1.0
 
-      :variable-pitch-family ,my-variable-pitch-font
-      :variable-pitch-weight nil
-      :variable-pitch-height 1.0 ; 1.1
+     :variable-pitch-family ,my-variable-pitch-font
+     :variable-pitch-weight nil
+     :variable-pitch-height 1.0 ; 1.1
 
-      :mode-line-active-family nil ; falls back to :default-family
-      :mode-line-active-weight nil ; falls back to :default-weight
-      :mode-line-active-height 1.0
+     :mode-line-active-family nil ; falls back to :default-family
+     :mode-line-active-weight nil ; falls back to :default-weight
+     :mode-line-active-height 1.0
 
-      :mode-line-inactive-family nil ; falls back to :default-family
-      :mode-line-inactive-weight nil ; falls back to :default-weight
-      :mode-line-inactive-height 1.0
+     :mode-line-inactive-family nil ; falls back to :default-family
+     :mode-line-inactive-weight nil ; falls back to :default-weight
+     :mode-line-inactive-height 1.0
 
-      :header-line-family nil ; falls back to :default-family
-      :header-line-weight nil ; falls back to :default-weight
-      :header-line-height 1.0
+     :header-line-family nil ; falls back to :default-family
+     :header-line-weight nil ; falls back to :default-weight
+     :header-line-height 1.0
 
-      :line-number-family nil ; falls back to :default-family
-      :line-number-weight nil ; falls back to :default-weight
-      :line-number-height 1.0
+     :line-number-family nil ; falls back to :default-family
+     :line-number-weight nil ; falls back to :default-weight
+     :line-number-height 1.0
 
-      :tab-bar-family nil ; falls back to :default-family
-      :tab-bar-weight nil ; falls back to :default-weight
-      :tab-bar-height 1.0
+     :tab-bar-family nil ; falls back to :default-family
+     :tab-bar-weight nil ; falls back to :default-weight
+     :tab-bar-height 1.0
 
-      :tab-line-family nil ; falls back to :default-family
-      :tab-line-weight nil ; falls back to :default-weight
-      :tab-line-height 1.0
+     :tab-line-family nil ; falls back to :default-family
+     :tab-line-weight nil ; falls back to :default-weight
+     :tab-line-height 1.0
 
-      :bold-family nil ; use whatever the underlying face has
-      :bold-weight nil
+     :bold-family nil ; use whatever the underlying face has
+     :bold-weight nil
 
-      :italic-family nil
-      :italic-slant nil
+     :italic-family nil
+     :italic-slant nil
 
-      :line-spacing nil)))
+     :line-spacing nil)))
 
-  :config
-  ;; Set the last preset or fall back to desired style from `fontaine-presets'
-  ;; (the `regular' in this case).
-  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular)))
+ :config
+ ;; Set the last preset or fall back to desired style from `fontaine-presets'
+ ;; (the `regular' in this case).
+ (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular)))
 
 ;;;; Show Font (preview fonts)
 ;; Read the manual: <https://protesilaos.com/emacs/show-font>
