@@ -2044,6 +2044,8 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
 #+end_src
 
 ** ~languages.el~
+
+*** shell
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
   (use-package
     sh-mode
@@ -2051,6 +2053,37 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
     :mode "\\.zsh\\'" "\\.sh\\'")
 #+end_src
 
+*** lisp
+
+**** aggressive-indent
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
+  (use-package aggressive-indent
+    :ensure t
+    :hook '(clojure-mode
+            elisp-mode
+            emacs-lisp-mode
+            lisp-mode
+            common-lisp-mode
+            scheme-mode))
+#+end_src
+
+**** smart-parens
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
+(use-package
+ smartparens
+ :ensure t
+ :hook
+ (clojure-mode . smartparens-mode)
+ (scheme-mode . smartparens-mode)
+ :config (require 'smartparens-config))
+#+end_src
+
+**** geiser
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
+
+#+end_src
+
+*** provide module
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
 (provide 'tony-emacs-languages)
 #+end_src
