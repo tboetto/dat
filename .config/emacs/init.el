@@ -102,6 +102,12 @@
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 
+(repeat-mode 1)
+
+(add-hook 'magit-diff-mode-hook 'visual-line-mode)
+(add-hook 'org-mode-hook 'visual-line-mode)
+(add-hook 'markdown-mode-hook 'visual-line-mode)
+
 (setq make-backup-files nil)
 (setq backup-inhibited nil) ;Not sure if needed, given `make-backup-files` above
 (setq create-lockfiles nil)
@@ -166,10 +172,13 @@
 (require 'tony-emacs-org)
 (require 'tony-emacs-project)
 ;;(require 'tony-emacs-treemacs)
+(require 'tony-emacs-pulsar)
 (require 'tony-emacs-fonts)
 (require 'tony-emacs-nerd-icons)
+(require 'tony-emacs-tweakers)
 (require 'tony-emacs-meow)
 (require 'tony-emacs-which-key)
+;;(require 'tony-emacs-prot-themes)
 (require 'tony-emacs-doom-themes)
 (require 'tony-emacs-solaire-mode)
 (require 'tony-emacs-doom-modeline)
@@ -178,6 +187,7 @@
 (require 'tony-emacs-marginalia)
 (require 'tony-emacs-orderless)
 (require 'tony-emacs-consult)
+(require 'tony-emacs-diff-hl)
 (require 'tony-emacs-magit)
 (require 'tony-emacs-blamer)
 (require 'tony-emacs-denote)
@@ -185,6 +195,7 @@
 (require 'tony-emacs-linter)
 (require 'tony-emacs-prettier)
 (require 'tony-emacs-treesit)
+(require 'tony-emacs-languages)
 (require 'tony-emacs-lsp-mode)
 ;;(require 'tony-emacs-lsp-treemacs)
 (require 'tony-emacs-ngx)

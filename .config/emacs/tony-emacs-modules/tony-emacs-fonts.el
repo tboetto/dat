@@ -117,7 +117,9 @@
  :config
  ;; Set the last preset or fall back to desired style from `fontaine-presets'
  ;; (the `regular' in this case).
- (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular)))
+ (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+ (with-eval-after-load 'pulsar
+   (add-hook 'fontaine-set-preset-hook #'pulsar-pulse-line)))
 
 ;;;; Show Font (preview fonts)
 ;; Read the manual: <https://protesilaos.com/emacs/show-font>

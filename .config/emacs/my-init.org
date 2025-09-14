@@ -210,11 +210,24 @@
 - These settings are very commonly used to turn emacs into a more suitable editor for programmers
   
 #+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
-(setq ring-bell-function #'ignore)
-(setq inhibit-startup-message t)
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
+  (setq ring-bell-function #'ignore)
+  (setq inhibit-startup-message t)
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+#+end_src
+
+*** Enable repeat mode
+C-x + o, C-x + o, C-x + o becomes C-x + o, o, o
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
+  (repeat-mode 1)
+#+end_src
+
+*** Wrap lines exceeding window size
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
+(add-hook 'magit-diff-mode-hook 'visual-line-mode)
+(add-hook 'org-mode-hook 'visual-line-mode)
+(add-hook 'markdown-mode-hook 'visual-line-mode)
 #+end_src
 
 *** Disable backups and lockfiles
@@ -314,10 +327,13 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
   (require 'tony-emacs-org)
   (require 'tony-emacs-project)
   ;;(require 'tony-emacs-treemacs)
+  (require 'tony-emacs-pulsar)
   (require 'tony-emacs-fonts)
   (require 'tony-emacs-nerd-icons)
+  (require 'tony-emacs-tweakers)
   (require 'tony-emacs-meow)
   (require 'tony-emacs-which-key)
+  ;;(require 'tony-emacs-prot-themes)
   (require 'tony-emacs-doom-themes)
   (require 'tony-emacs-solaire-mode)
   (require 'tony-emacs-doom-modeline)
@@ -326,6 +342,7 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
   (require 'tony-emacs-marginalia)
   (require 'tony-emacs-orderless)
   (require 'tony-emacs-consult)
+  (require 'tony-emacs-diff-hl)
   (require 'tony-emacs-magit)
   (require 'tony-emacs-blamer)
   (require 'tony-emacs-denote)
@@ -333,6 +350,7 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
   (require 'tony-emacs-linter)
   (require 'tony-emacs-prettier)
   (require 'tony-emacs-treesit)
+  (require 'tony-emacs-languages)
   (require 'tony-emacs-lsp-mode)
   ;;(require 'tony-emacs-lsp-treemacs)
   (require 'tony-emacs-ngx)
@@ -676,28 +694,136 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
 ** ~denote.el~
 *** use and config denote
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
-(use-package
- denote
- :ensure t
- :config
- (setq denote-directory (expand-file-name "~/Documents/org/denote"))
- (setq denote-known-keywords
-       '("emacs"
-         "org mode"
-         "denote"
-         "game dev"
-         "godot"
-         "C"
-         "lisp"
-         "typescript"
-         "javascript"
-         "angular"
-         "ngrx"
-         "hand tools"
-         "power tools"
-         "offroading"
-         "preparedness")))
+  (use-package
+    denote
+    :ensure t
+    :demand t
+    :init
+    :config
+    (setq denote-workdir (expand-file-name "~/Documents/org/work-notes"))
+    (setq denote-directory (expand-file-name "~/Documents/org/denote"))
+    (setq denote-known-keywords
+  	'("emacs"
+            "org mode"
+            "denote"
+            "game dev"
+            "godot"
+            "C"
+            "lisp"
+            "typescript"
+            "javascript"
+            "angular"
+            "ngrx"
+            "hand tools"
+            "power tools"
+            "offroading"
+            "preparedness")))
 #+end_src
+*** use and config denote-journal
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
+  (use-package denote-journal
+    :ensure t
+    :demand t
+    :after denote
+    :custom
+    (denote-journal-directory (expand-file-name "journal" denote-directory))
+    (denote-journal-title-format 'day-date-month-year)
+    (denote-journal-keyword "journal")
+
+    :config
+    (with-eval-after-load 'org-capture
+      (add-to-list 'org-capture-templates
+                   '("ndj" "Journal" entry
+                     (file denote-journal-path-to-new-or-existing-entry)
+                     "* %U\n\n%?"
+                     :kill-buffer t
+                     :empty-lines 1)))
+
+    :bind
+    (("C-c n j" . denote-journal-new-entry)
+     ("C-c n J" . denote-journal-new-or-existing-entry)))
+#+end_src
+
+*** use and config denote markdown
+possible obsidian usage
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
+  (use-package denote-markdown
+    ;; TODO There is apparently Obsidian support. Maybe I could create a Silo or
+    ;; something that is located at the Obsidian directory. Having the ability to
+    ;; link my Obsidian notes with my denote(s) would be really nice. Definitely
+    ;; going to look into this.
+    :ensure t
+    :demand t
+    :after denote)
+#+end_src
+
+*** use and config denote-silo
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
+  (use-package denote-silo
+    :ensure t
+    :demand t
+    :after denote
+    :custom
+    (denote-silo-directories (list denote-directory denote-workdir))
+    :bind
+    (("C-c N d" . denote-silo-dired)
+     ("C-c N n" . denote-silo-open-or-create)
+     ("C-c N N" . denote-silo-select-silo-then-command)
+     ("C-c N c" . denote-silo-cd)))
+#+end_src
+
+*** use and config denote-explore
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
+  (use-package denote-explore
+    :ensure t
+    :after denote
+    :custom
+    ;; Where to store network data and in which format
+    (denote-explore-network-directory (concat denote-directory "/graphs/"))
+    (denote-explore-network-filename "denote-network")
+    ;; Output format
+    (denote-explore-network-format 'graphviz)
+    (denote-explore-network-graphviz-filetype "svg")
+    ;; Exlude keywords or regex
+    (denote-explore-network-keywords-ignore '("bib"))
+    :bind
+    (;; Statistics
+     ("C-c n e c" . denote-explore-count-notes)
+     ("C-c n e C" . denote-explore-count-keywords)
+     ("C-c n e b" . denote-explore-keywords-barchart)
+     ("C-c n e x" . denote-explore-extensions-barchart)
+     ;; Random walks
+     ("C-c n e r" . denote-explore-random-note)
+     ("C-c n e l" . denote-explore-random-link)
+     ("C-c n e k" . denote-explore-random-keyword)
+     ;; Denote Janitor
+     ("C-c n e d" . denote-explore-identify-duplicate-notes)
+     ("C-c n e z" . denote-explore-zero-keywords)
+     ("C-c n e s" . denote-explore-single-keywords)
+     ("C-c n e o" . denote-explore-sort-keywords)
+     ("C-c n e r" . denote-explore-rename-keywords)
+     ;; Visualise denote
+     ("C-c n e n" . denote-explore-network)
+     ("C-c n e v" . denote-explore-network-regenerate)
+     ("C-c n e D" . denote-explore-degree-barchart)))
+#+end_src
+
+*** use and config consult denote
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
+(use-package consult-denote
+  :ensure t
+  :bind
+  (("C-c n c f" . consult-denote-find)
+   ("C-c n c g" . consult-denote-grep))
+
+  :custom
+  (consult-denote-find-command 'consult-fd)
+  (consult-denote-grep-command 'consult-ripgrep)
+
+  :config
+  (consult-denote-mode 1))
+#+end_src
+
 
 *** provide module
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
@@ -827,6 +953,42 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
 (provide 'tony-emacs-treemacs)
 #+end_src
 
+** ~tweakers.el~
+
+*** use and config anzu
+Display number of matches in modeline when searching
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-tweakers.el" :mkdirp yes
+  (use-package anzu
+    :ensure t
+    :config
+    (global-anzu-mode))
+#+end_src
+
+*** use and configure surround
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-tweakers.el" :mkdirp yes
+  (use-package surround
+    :ensure t
+    :bind-keymap ("C-c s" . surround-keymap))
+#+end_src
+
+*** use and configure ultra-scroll
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-tweakers.el" :mkdirp yes
+;; (pixel-scroll-precision-mode)
+
+(use-package ultra-scroll
+  :ensure t
+  :init
+  (setopt scroll-conservatively 3
+          scroll-margin 0)
+  :config
+  (ultra-scroll-mode 1))
+#+end_src
+
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-tweakers.el" :mkdirp yes
+(provide 'tony-emacs-tweakers)
+#+end_src
+
 ** ~meow.el~
 *** setup meow config
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-meow.el" :mkdirp yes
@@ -925,6 +1087,12 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
 (provide 'tony-emacs-meow)
 #+end_src
 
+*** use and config ef themes
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-prot-themes.el" :mkdirp yes
+#+end_src
+*** use and config doric themes
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-prot-themes.el" :mkdirp yes
+#+end_src
 ** ~which-key.el~
 *** setup which key
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-which-key.el" :mkdirp yes
@@ -934,6 +1102,22 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
 *** provide module
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-which-key.el" :mkdirp yes
 (provide 'tony-emacs-which-key)
+#+end_src
+
+** ~prot-themes.el~
+*** use and config modus themes
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-prot-themes.el" :mkdirp yes
+  
+#+end_src
+*** use and config ef themes
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-prot-themes.el" :mkdirp yes
+#+end_src
+*** use and config doric themes
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-prot-themes.el" :mkdirp yes
+#+end_src
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-prot-themes.el" :mkdirp yes
+  (provide 'tony-emacs-prot-themes)
 #+end_src
 
 ** ~doom-themes.el~
@@ -1051,6 +1235,48 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
 *** provide textsize
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-textsize.el" :mkdirp yes
 (provide 'tony-emacs-textsize)
+#+end_src
+
+** ~pulsar.el~
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-pulsar.el" :mkdirp yes
+  ;;;; Pulsar
+  ;; Read the pulsar manual: <https://protesilaos.com/emacs/pulsar>.
+  (use-package
+    pulsar
+    :ensure t
+    :config
+    (setq
+     pulsar-pulse t
+     pulsar-delay 0.055
+     pulsar-iterations 5
+     pulsar-face 'pulsar-green
+     pulsar-region-face 'pulsar-cyan
+     pulsar-highlight-face 'pulsar-magenta)
+    ;; Pulse after `pulsar-pulse-region-functions'.
+    (setq pulsar-pulse-region-functions
+  	pulsar-pulse-region-common-functions)
+    :hook
+    ;; There are convenience functions/commands which pulse the line using
+    ;; a specific colour: `pulsar-pulse-line-red' is one of them.
+    ((next-error
+      .
+      (pulsar-pulse-line-red pulsar-recenter-top pulsar-reveal-entry))
+     (minibuffer-setup . pulsar-pulse-line-red)
+     ;; Pulse right after the use of `pulsar-pulse-functions' and
+     ;; `pulsar-pulse-region-functions'.  The default value of the
+     ;; former user option is comprehensive.
+     (after-init . pulsar-global-mode))
+    :bind
+    ;; pulsar does not define any key bindings.  This is just my personal
+    ;; preference.  Remember to read the manual on the matter.  Evaluate:
+    ;;
+    ;; (info "(elisp) Key Binding Conventions")
+    (("C-x l" . pulsar-pulse-line) ; override `count-lines-page'
+     ("C-x L" . pulsar-highlight-dwim))) ; or use `pulsar-highlight-line'
+#+end_src
+
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-pulsar.el" :mkdirp yes
+(provide 'tony-emacs-pulsar)
 #+end_src
 
 ** ~fonts.el~
@@ -1179,7 +1405,9 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
  :config
  ;; Set the last preset or fall back to desired style from `fontaine-presets'
  ;; (the `regular' in this case).
- (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular)))
+ (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+ (with-eval-after-load 'pulsar
+   (add-hook 'fontaine-set-preset-hook #'pulsar-pulse-line)))
 #+end_src
 *** use and config show font
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-fonts.el" :mkdirp yes
@@ -1522,6 +1750,27 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
 (provide 'tony-emacs-embark)
 #+end_src
 
+** ~diff-hl.el~
+
+*** use and configure diff-hl
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-diff-hl.el" :mkdirp yes
+(use-package
+ diff-hl
+ :ensure t
+ :init
+ (global-diff-hl-mode)
+ (diff-hl-flydiff-mode) ; update diff-hl on the fly
+ (add-hook 'dired-mode-hook 'diff-hl-dired-mode) ; show diff in dired
+ :hook
+ (magit-pre-refresh . diff-hl-magit-pre-refresh)
+ (magit-post-refresh . diff-hl-magit-post-refresh))
+#+end_src
+
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-diff-hl.el" :mkdirp yes
+(provide 'tony-emacs-diff-hl)
+#+end_src
+
 ** ~magit.el~
 *** use and config magit
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-magit.el" :mkdirp yes
@@ -1681,18 +1930,31 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
 #+end_src
 
 ** ~linter.el~
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-linter.el" :mkdirp yes
-(use-package
- flycheck
- :ensure t
- :init (global-flycheck-mode)
- :bind
- (:map
-  flycheck-mode-map
-  ("M-n" . flycheck-next-error) ; optional but recommended error navigation
-  ("M-p" . flycheck-previous-error)))
 
-(provide 'tony-emacs-linter)
+*** flycheck use and config
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-linter.el" :mkdirp yes
+  (use-package
+    flycheck
+    :ensure t
+    :init (global-flycheck-mode)
+    :bind
+    (:map
+     flycheck-mode-map
+     ("M-n" . flycheck-next-error) ; optional but recommended error navigation
+     ("M-p" . flycheck-previous-error)))
+#+end_src
+
+*** editorconfig use and config
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-linter.el" :mkdirp yes
+(use-package editorconfig
+  :ensure t
+  :config (editorconfig-mode 1))
+#+end_src
+
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-linter.el" :mkdirp yes
+
+  (provide 'tony-emacs-linter)
 #+end_src
 
 ** ~prettier.el~
@@ -1779,6 +2041,18 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
              (corfu-mode))
            nil t))
 (provide 'tony-emacs-completion)
+#+end_src
+
+** ~languages.el~
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
+  (use-package
+    sh-mode
+    :ensure nil ;; built in
+    :mode "\\.zsh\\'" "\\.sh\\'")
+#+end_src
+
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
+(provide 'tony-emacs-languages)
 #+end_src
 
 ** ~lsp-mode.el~
