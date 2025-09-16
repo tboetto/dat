@@ -77,7 +77,7 @@
    '("x" . meow-line)
    '("X" . meow-goto-line)
    '("y" . meow-save)
-   '("Y" . meow-sync-grab)
+   '("Y" . meow-clipboard-save)
    '("z" . meow-pop-selection)
    '("'" . repeat)
    '("<escape>" . ignore)))
