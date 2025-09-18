@@ -1,16 +1,15 @@
 (use-package
-  sh-mode
-  :ensure nil ;; built in
-  :mode "\\.zsh\\'" "\\.sh\\'")
+ sh-mode
+ :ensure nil ;; built in
+ :mode "\\.zsh\\'" "\\.sh\\'")
 
-(use-package aggressive-indent
-  :ensure t
-  :hook '(clojure-mode
-          elisp-mode
-          emacs-lisp-mode
-          lisp-mode
-          common-lisp-mode
-          scheme-mode))
+(use-package
+ aggressive-indent
+ :ensure t
+ :hook
+
+ '(clojure-mode
+   elisp-mode emacs-lisp-mode lisp-mode common-lisp-mode scheme-mode))
 
 (use-package
  smartparens
@@ -20,6 +19,6 @@
  (scheme-mode . smartparens-mode)
  :config (require 'smartparens-config))
 
-
+(use-package racket-mode :ensure t)
 
 (provide 'tony-emacs-languages)

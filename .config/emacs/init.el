@@ -86,16 +86,6 @@
 
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 
-;; (pcase system-type
-;;   ((or 'gnu/linux 'windows-nt 'cygwin)
-;;    (set-face-attribute 'default nil
-;;                        :family "Iosevka Nerd Font Mono"
-;;                        :weight 'regular))
-;;   ('darwin
-;;    (set-face-attribute 'default nil
-;;                        :family "IosevkaTerm Nerd Font Mono"
-;;                        :weight 'regular)))
-
 (setq ring-bell-function #'ignore)
 (setq inhibit-startup-message t)
 (menu-bar-mode -1)

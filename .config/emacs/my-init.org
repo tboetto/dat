@@ -6,12 +6,12 @@
 
 ** use plists (for lsp performance)
 #+begin_src emacs-lisp :tangle "early-init.el" :mkdirp yes
-  (setenv "LSP_USE_PLISTS" "true")
+(setenv "LSP_USE_PLISTS" "true")
 #+end_src
 
 ** disable package for elpaca
 #+begin_src emacs-lisp :tangle "early-init.el" :mkdirp yes
-  (setq package-enable-at-startup nil)
+(setq package-enable-at-startup nil)
 #+end_src
 
 ** Find gcc and libgccjit packages to be used for emacs on macOS
@@ -80,7 +80,7 @@
 
 * ~init.el~
 
-** Initialize package repositories (no longer working elpaca now)
+** Initialize package repositories (no tangle anymore, using elpaca now)
 #+begin_src emacs-lisp 
 (require 'package)
 (add-to-list
@@ -94,6 +94,8 @@
 
 ** Initialize elpaca
 *** Install
+This is the standard install code block for elpaca
+
 #+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
 (defvar elpaca-installer-version 0.11)
 (defvar elpaca-directory
@@ -178,6 +180,8 @@
 #+end_src
 
 *** use-package integration
+This way you can use elpaca with use-package.
+~:ensure~ allows for pointing to github repos as well
 #+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
 (elpaca
  elpaca-use-package
@@ -191,36 +195,21 @@
 #+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 #+end_src
-
-*** Set font depending on OS
-
-#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
-  ;; (pcase system-type
-  ;;   ((or 'gnu/linux 'windows-nt 'cygwin)
-  ;;    (set-face-attribute 'default nil
-  ;;                        :family "Iosevka Nerd Font Mono"
-  ;;                        :weight 'regular))
-  ;;   ('darwin
-  ;;    (set-face-attribute 'default nil
-  ;;                        :family "IosevkaTerm Nerd Font Mono"
-  ;;                        :weight 'regular)))
-#+end_src
-
 *** Disable unneeded features
 - These settings are very commonly used to turn emacs into a more suitable editor for programmers
   
 #+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
-  (setq ring-bell-function #'ignore)
-  (setq inhibit-startup-message t)
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
+(setq ring-bell-function #'ignore)
+(setq inhibit-startup-message t)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
 #+end_src
 
 *** Enable repeat mode
 C-x + o, C-x + o, C-x + o becomes C-x + o, o, o
 #+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
-  (repeat-mode 1)
+(repeat-mode 1)
 #+end_src
 
 *** Wrap lines exceeding window size
@@ -317,45 +306,49 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
 #+end_src
 
 * Load packages and modules
-#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
-  (mapc
-   (lambda (string)
-     (add-to-list 'load-path (locate-user-emacs-file string)))
-   '("tony-lisp" "tony-emacs-modules"))
+Require all of the modules and custom packages tangled to their files
+in tony-lisp / tony-emacs-modules directories throughout this literate
+config
 
-  (require 'tony-emacs-miscellaneous)
-  (require 'tony-emacs-org)
-  (require 'tony-emacs-project)
-  ;;(require 'tony-emacs-treemacs)
-  (require 'tony-emacs-pulsar)
-  (require 'tony-emacs-fonts)
-  (require 'tony-emacs-nerd-icons)
-  (require 'tony-emacs-tweakers)
-  (require 'tony-emacs-meow)
-  (require 'tony-emacs-which-key)
-  ;;(require 'tony-emacs-prot-themes)
-  ;;(require 'tony-emacs-doom-themes)
-  ;;(require 'tony-emacs-solaire-mode)
-  (require 'tony-emacs-themes)
-  (require 'tony-emacs-doom-modeline)
-  ;(require 'tony-emacs-textsize)
-  (require 'tony-emacs-vertico)
-  (require 'tony-emacs-marginalia)
-  (require 'tony-emacs-orderless)
-  (require 'tony-emacs-consult)
-  (require 'tony-emacs-diff-hl)
-  (require 'tony-emacs-magit)
-  (require 'tony-emacs-blamer)
-  (require 'tony-emacs-denote)
-  (require 'tony-emacs-completion)
-  (require 'tony-emacs-linter)
-  (require 'tony-emacs-prettier)
-  (require 'tony-emacs-treesit)
-  (require 'tony-emacs-languages)
-  (require 'tony-emacs-lsp-mode)
-  ;;(require 'tony-emacs-lsp-treemacs)
-  (require 'tony-emacs-ngx)
-  (require 'tony-emacs-lsp-biome)
+#+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
+(mapc
+ (lambda (string)
+   (add-to-list 'load-path (locate-user-emacs-file string)))
+ '("tony-lisp" "tony-emacs-modules"))
+
+(require 'tony-emacs-miscellaneous)
+(require 'tony-emacs-org)
+(require 'tony-emacs-project)
+;;(require 'tony-emacs-treemacs)
+(require 'tony-emacs-pulsar)
+(require 'tony-emacs-fonts)
+(require 'tony-emacs-nerd-icons)
+(require 'tony-emacs-tweakers)
+(require 'tony-emacs-meow)
+(require 'tony-emacs-which-key)
+;;(require 'tony-emacs-prot-themes)
+;;(require 'tony-emacs-doom-themes)
+;;(require 'tony-emacs-solaire-mode)
+(require 'tony-emacs-themes)
+(require 'tony-emacs-doom-modeline)
+;(require 'tony-emacs-textsize)
+(require 'tony-emacs-vertico)
+(require 'tony-emacs-marginalia)
+(require 'tony-emacs-orderless)
+(require 'tony-emacs-consult)
+(require 'tony-emacs-diff-hl)
+(require 'tony-emacs-magit)
+(require 'tony-emacs-blamer)
+(require 'tony-emacs-denote)
+(require 'tony-emacs-completion)
+(require 'tony-emacs-linter)
+(require 'tony-emacs-prettier)
+(require 'tony-emacs-treesit)
+(require 'tony-emacs-languages)
+(require 'tony-emacs-lsp-mode)
+;;(require 'tony-emacs-lsp-treemacs)
+(require 'tony-emacs-ngx)
+(require 'tony-emacs-lsp-biome)
 #+end_src
 
 * Packages
@@ -653,6 +646,48 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
 (provide 'tony-emacs-miscellaneous)
 #+end_src
 
+** ~languages.el~
+*** shell
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
+(use-package
+ sh-mode
+ :ensure nil ;; built in
+ :mode "\\.zsh\\'" "\\.sh\\'")
+#+end_src
+
+*** lisp
+**** aggressive-indent
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
+(use-package
+ aggressive-indent
+ :ensure t
+ :hook
+
+ '(clojure-mode
+   elisp-mode emacs-lisp-mode lisp-mode common-lisp-mode scheme-mode))
+#+end_src
+
+**** smart-parens
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
+(use-package
+ smartparens
+ :ensure t
+ :hook
+ (clojure-mode . smartparens-mode)
+ (scheme-mode . smartparens-mode)
+ :config (require 'smartparens-config))
+#+end_src
+
+**** racket
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
+(use-package racket-mode :ensure t)
+#+end_src
+
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
+(provide 'tony-emacs-languages)
+#+end_src
+
 ** ~org.el~
 *** org mode setup
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
@@ -660,6 +695,7 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
  org
  :ensure nil
  :init
+ (setopt org-confirm-babel-evaluate nil)
  (setq org-directory (expand-file-name "~/Documents/org/"))
  (setq org-imenu-depth 7)
  :config (setq org-startup-indented t))
@@ -679,12 +715,32 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
  org-modern
  :ensure t
  :hook (org-mode . org-modern-mode)
- :config (setq org-modern-keyword nil org-modern-block-name nil))
+ :config
+ (setq
+  org-modern-keyword nil
+  org-modern-block-name nil))
+#+end_src
+
+*** org-modern-indent
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
+(use-package org-modern-indent
+  :ensure (:host github :repo "jdtsmith/org-modern-indent")
+  :hook
+  (org-mode . org-modern-indent-mode))
 #+end_src
 
 *** org appear set up
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
 (use-package org-appear :ensure t :hook (org-mode . org-appear-mode))
+(setq org-appear-trigger 'always)
+#+end_src
+
+*** org-babel setup
+
+**** racket ob-babel 
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
+(use-package ob-racket
+  :ensure (:host github :repo "hasu/emacs-ob-racket"))
 #+end_src
 
 *** provide module
@@ -695,118 +751,128 @@ By default emacs tries to lockdown and backup files. I want to be able to open a
 ** ~denote.el~
 *** use and config denote
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
-  (use-package
-    denote
-    :ensure t
-    :demand t
-    :init
-    :config
-    (setq denote-workdir (expand-file-name "~/Documents/org/work-notes"))
-    (setq denote-directory (expand-file-name "~/Documents/org/denote"))
-    (setq denote-known-keywords
-  	'("emacs"
-            "org mode"
-            "denote"
-            "game dev"
-            "godot"
-            "C"
-            "lisp"
-            "typescript"
-            "javascript"
-            "angular"
-            "ngrx"
-            "hand tools"
-            "power tools"
-            "offroading"
-            "preparedness")))
+(use-package
+ denote
+ :ensure t
+ :demand t
+ :init
+ :config
+ (setq denote-file-type 'org)
+ (setq denote-workdir (expand-file-name "~/Documents/org/work-notes"))
+ (setq denote-directory (expand-file-name "~/Documents/org/denote"))
+ (setq denote-known-keywords
+       '("emacs"
+         "org mode"
+         "denote"
+         "game dev"
+         "godot"
+         "C"
+         "lisp"
+         "typescript"
+         "javascript"
+         "angular"
+         "ngrx"
+         "hand tools"
+         "power tools"
+         "offroading"
+         "preparedness")))
 #+end_src
 *** use and config denote-journal
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
-  (use-package denote-journal
-    :ensure t
-    :demand t
-    :after denote
-    :custom
-    (denote-journal-directory (expand-file-name "journal" denote-directory))
-    (denote-journal-title-format 'day-date-month-year)
-    (denote-journal-keyword "journal")
+(use-package
+ denote-journal
+ :ensure t
+ :demand t
+ :after denote
+ :custom
+ (denote-journal-directory
+  (expand-file-name "journal" denote-directory))
+ (denote-journal-title-format 'day-date-month-year)
+ (denote-journal-keyword "journal")
 
-    :config
-    (with-eval-after-load 'org-capture
-      (add-to-list 'org-capture-templates
-                   '("ndj" "Journal" entry
-                     (file denote-journal-path-to-new-or-existing-entry)
-                     "* %U\n\n%?"
-                     :kill-buffer t
-                     :empty-lines 1)))
+ :config
+ (with-eval-after-load 'org-capture
+   (add-to-list
+    'org-capture-templates
+    '("ndj"
+      "Journal"
+      entry
+      (file denote-journal-path-to-new-or-existing-entry)
+      "* %U\n\n%?"
+      :kill-buffer t
+      :empty-lines 1)))
 
-    :bind
-    (("C-c n j" . denote-journal-new-entry)
-     ("C-c n J" . denote-journal-new-or-existing-entry)))
+ :bind
+ (("C-c n j" . denote-journal-new-entry)
+  ("C-c n J" . denote-journal-new-or-existing-entry)))
 #+end_src
 
 *** use and config denote markdown
 possible obsidian usage
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
-  (use-package denote-markdown
-    ;; TODO There is apparently Obsidian support. Maybe I could create a Silo or
-    ;; something that is located at the Obsidian directory. Having the ability to
-    ;; link my Obsidian notes with my denote(s) would be really nice. Definitely
-    ;; going to look into this.
-    :ensure t
-    :demand t
-    :after denote)
+(use-package
+ denote-markdown
+ ;; TODO There is apparently Obsidian support. Maybe I could create a Silo or
+ ;; something that is located at the Obsidian directory. Having the ability to
+ ;; link my Obsidian notes with my denote(s) would be really nice. Definitely
+ ;; going to look into this.
+ :ensure t
+ :demand t
+ :after denote)
 #+end_src
 
 *** use and config denote-silo
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
-  (use-package denote-silo
-    :ensure t
-    :demand t
-    :after denote
-    :custom
-    (denote-silo-directories (list denote-directory denote-workdir))
-    :bind
-    (("C-c N d" . denote-silo-dired)
-     ("C-c N n" . denote-silo-open-or-create)
-     ("C-c N N" . denote-silo-select-silo-then-command)
-     ("C-c N c" . denote-silo-cd)))
+(use-package
+ denote-silo
+ :ensure t
+ :demand t
+ :after denote
+ :custom
+ (denote-silo-directories (list denote-directory denote-workdir))
+ :bind
+ (("C-c N d" . denote-silo-dired)
+  ("C-c N n" . denote-silo-open-or-create)
+  ("C-c N N" . denote-silo-select-silo-then-command)
+  ("C-c N c" . denote-silo-cd)))
 #+end_src
 
 *** use and config denote-explore
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-denote.el" :mkdirp yes
-  (use-package denote-explore
-    :ensure t
-    :after denote
-    :custom
-    ;; Where to store network data and in which format
-    (denote-explore-network-directory (concat denote-directory "/graphs/"))
-    (denote-explore-network-filename "denote-network")
-    ;; Output format
-    (denote-explore-network-format 'graphviz)
-    (denote-explore-network-graphviz-filetype "svg")
-    ;; Exlude keywords or regex
-    (denote-explore-network-keywords-ignore '("bib"))
-    :bind
-    (;; Statistics
-     ("C-c n e c" . denote-explore-count-notes)
-     ("C-c n e C" . denote-explore-count-keywords)
-     ("C-c n e b" . denote-explore-keywords-barchart)
-     ("C-c n e x" . denote-explore-extensions-barchart)
-     ;; Random walks
-     ("C-c n e r" . denote-explore-random-note)
-     ("C-c n e l" . denote-explore-random-link)
-     ("C-c n e k" . denote-explore-random-keyword)
-     ;; Denote Janitor
-     ("C-c n e d" . denote-explore-identify-duplicate-notes)
-     ("C-c n e z" . denote-explore-zero-keywords)
-     ("C-c n e s" . denote-explore-single-keywords)
-     ("C-c n e o" . denote-explore-sort-keywords)
-     ("C-c n e r" . denote-explore-rename-keywords)
-     ;; Visualise denote
-     ("C-c n e n" . denote-explore-network)
-     ("C-c n e v" . denote-explore-network-regenerate)
-     ("C-c n e D" . denote-explore-degree-barchart)))
+(use-package
+ denote-explore
+ :ensure t
+ :after denote
+ :custom
+ ;; Where to store network data and in which format
+ (denote-explore-network-directory
+  (concat denote-directory "/graphs/"))
+ (denote-explore-network-filename "denote-network")
+ ;; Output format
+ (denote-explore-network-format 'graphviz)
+ (denote-explore-network-graphviz-filetype "svg")
+ ;; Exlude keywords or regex
+ (denote-explore-network-keywords-ignore '("bib"))
+ :bind
+ ( ;; Statistics
+  ("C-c n e c" . denote-explore-count-notes)
+  ("C-c n e C" . denote-explore-count-keywords)
+  ("C-c n e b" . denote-explore-keywords-barchart)
+  ("C-c n e x" . denote-explore-extensions-barchart)
+  ;; Random walks
+  ("C-c n e r" . denote-explore-random-note)
+  ("C-c n e l" . denote-explore-random-link)
+  ("C-c n e k" . denote-explore-random-keyword)
+  ;; Denote Janitor
+  ("C-c n e d" . denote-explore-identify-duplicate-notes)
+  ("C-c n e z" . denote-explore-zero-keywords)
+  ("C-c n e s" . denote-explore-single-keywords)
+  ("C-c n e o" . denote-explore-sort-keywords)
+  ("C-c n e r" . denote-explore-rename-keywords)
+  ;; Visualise denote
+  ("C-c n e n" . denote-explore-network)
+  ("C-c n e v" . denote-explore-network-regenerate)
+  ("C-c n e D" . denote-explore-degree-barchart)))
 #+end_src
 
 *** use and config consult denote
@@ -959,30 +1025,28 @@ possible obsidian usage
 *** use and config anzu
 Display number of matches in modeline when searching
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-tweakers.el" :mkdirp yes
-  (use-package anzu
-    :ensure t
-    :config
-    (global-anzu-mode))
+(use-package anzu :ensure t :config (global-anzu-mode))
 #+end_src
 
 *** use and configure surround
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-tweakers.el" :mkdirp yes
-  (use-package surround
-    :ensure t
-    :bind-keymap ("C-c s" . surround-keymap))
+(use-package
+ surround
+ :ensure t
+ :bind-keymap ("C-c s" . surround-keymap))
 #+end_src
 
 *** use and configure ultra-scroll
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-tweakers.el" :mkdirp yes
 ;; (pixel-scroll-precision-mode)
-
-(use-package ultra-scroll
-  :ensure t
-  :init
-  (setopt scroll-conservatively 3
-          scroll-margin 0)
-  :config
-  (ultra-scroll-mode 1))
+(use-package
+ ultra-scroll
+ :ensure t
+ :init
+ (setopt
+  scroll-conservatively 3
+  scroll-margin 0)
+ :config (ultra-scroll-mode 1))
 #+end_src
 
 *** provide module
@@ -1102,7 +1166,7 @@ Display number of matches in modeline when searching
 *** Themes directory
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-  (setopt custom-theme-directory "~/.config/emacs/themes/")
+(setopt custom-theme-directory "~/.config/emacs/themes/")
 #+end_src
 *** Set custom themes safe
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
@@ -1112,187 +1176,192 @@ Display number of matches in modeline when searching
 *** Functions
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-  (defun my-clear-theme ()
-    "Clear current theme"
-    (interactive)
-    (mapc #'disable-theme custom-enabled-themes))
+(defun my-clear-theme ()
+  "Clear current theme"
+  (interactive)
+  (mapc #'disable-theme custom-enabled-themes))
 
-  (defun my-load-theme (&optional theme)
-    "Load THEME after clearing the previous one.
+(defun my-load-theme (&optional theme)
+  "Load THEME after clearing the previous one.
   If called interactively, prompt for a theme name. If THEME is provided
   as an argument, load that theme directly."
-    (interactive)
-    (my-clear-theme)
-    (if theme
-        (load-theme theme t)
-      (call-interactively 'load-theme)))
+  (interactive)
+  (my-clear-theme)
+  (if theme
+      (load-theme theme t)
+    (call-interactively 'load-theme)))
 
-  ;; (setq my-catppuccin-flavors (my-alist-keys catppuccin-flavor-alist))
+;; (setq my-catppuccin-flavors (my-alist-keys catppuccin-flavor-alist))
 
-  ;; (defun my-catppuccin-theme (flavor)
-  ;;   "Clear previous theme and load selected catppuccin FLAVOR."
-  ;;   (interactive
-  ;;    (list (intern (completing-read "Choose a flavor: "
-  ;;                                   my-catppuccin-flavors))))
-  ;;   (my-clear-theme)
-  ;;   (catppuccin-load-flavor flavor))
+;; (defun my-catppuccin-theme (flavor)
+;;   "Clear previous theme and load selected catppuccin FLAVOR."
+;;   (interactive
+;;    (list (intern (completing-read "Choose a flavor: "
+;;                                   my-catppuccin-flavors))))
+;;   (my-clear-theme)
+;;   (catppuccin-load-flavor flavor))
 
-  (defun my-load-theme-in-all-frames (frame)
-    "Load the current theme in the newly created FRAME.
+(defun my-load-theme-in-all-frames (frame)
+  "Load the current theme in the newly created FRAME.
   When loaded after a new frame has been created with emacsclient, it
   ensures that the theme is properly applied. In particular this solves a
   problem with the menu bar not using the proper theme if the server was
   loaded with a different theme."
-    (with-selected-frame frame
-      (enable-theme (car custom-enabled-themes))
-      (when (string-prefix-p "ef-" (symbol-name (car custom-enabled-themes)))
-        (ef-themes-load-theme (car custom-enabled-themes)))
-      (when (string-prefix-p "modus-" (symbol-name (car custom-enabled-themes)))
-        (modus-themes-load-theme (car custom-enabled-themes)))))
+  (with-selected-frame frame
+    (enable-theme (car custom-enabled-themes))
+    (when (string-prefix-p
+           "ef-" (symbol-name (car custom-enabled-themes)))
+      (ef-themes-load-theme (car custom-enabled-themes)))
+    (when (string-prefix-p
+           "modus-" (symbol-name (car custom-enabled-themes)))
+      (modus-themes-load-theme (car custom-enabled-themes)))))
 #+end_src
 
 *** Hooks
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-  (add-hook 'after-make-frame-functions #'my-load-theme-in-all-frames)
+(add-hook 'after-make-frame-functions #'my-load-theme-in-all-frames)
 #+end_src
 
 *** Modus themes
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-  (use-package modus-themes
-    :ensure t
-    :init
-    (setopt modus-themes-mixed-fonts nil
-            modus-themes-variable-pitch-ui nil
-            modus-themes-bold-constructs t
-            modus-themes-italic-constructs t
-            modus-themes-to-toggle '(modus-operandi modus-vivendi)
+(use-package
+ modus-themes
+ :ensure t
+ :init
+ (setopt
+  modus-themes-mixed-fonts nil
+  modus-themes-variable-pitch-ui nil
+  modus-themes-bold-constructs t
+  modus-themes-italic-constructs t
+  modus-themes-to-toggle '(modus-operandi modus-vivendi)
 
-            modus-themes-common-palette-overrides
-            '((fringe unspecified)
-              (bg-paren-match bg-magenta-intense)
-              (fg-heading-1 blue-warmer)
-              (fg-heading-2 yellow-cooler)
-              (fg-heading-3 cyan-cooler)
-              (bg-prose-block-delimiter bg-mode-line-inactive))
+  modus-themes-common-palette-overrides
+  '((fringe unspecified)
+    (bg-paren-match bg-magenta-intense)
+    (fg-heading-1 blue-warmer)
+    (fg-heading-2 yellow-cooler)
+    (fg-heading-3 cyan-cooler)
+    (bg-prose-block-delimiter bg-mode-line-inactive))
 
-            modus-themes-headings '((0 . (1.5))
-                                    (1 . (1.4))
-                                    (2 . (1.3))
-                                    (3 . (1.2))
-                                    (4 . (1.1))
-                                    (5 . (1.1))
-                                    (6 . (1.0))
-                                    (7 . (1.0)))))
+  modus-themes-headings
+  '((0 . (1.5))
+    (1 . (1.4))
+    (2 . (1.3))
+    (3 . (1.2))
+    (4 . (1.1))
+    (5 . (1.1))
+    (6 . (1.0))
+    (7 . (1.0)))))
 #+end_src
 
 *** Ef themes
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-  (use-package ef-themes
-    :ensure t
-    :init
-    (setopt ef-themes-to-toggle '(ef-light ef-dark))
-    :custom
-    (ef-themes-mixed-fonts nil)
-    (ef-themes-variable-pitch-ui nil)
-    (ef-themes-headings '((0 . (1.5))
-                          (1 . (1.4))
-                          (2 . (1.3))
-                          (3 . (1.2))
-                          (4 . (1.1))
-                          (5 . (1.1))
-                          (6 . (1.0))
-                          (7 . (1.0)))))
+(use-package
+ ef-themes
+ :ensure t
+ :init (setopt ef-themes-to-toggle '(ef-light ef-dark))
+ :custom (ef-themes-mixed-fonts nil) (ef-themes-variable-pitch-ui nil)
+ (ef-themes-headings
+  '((0 . (1.5))
+    (1 . (1.4))
+    (2 . (1.3))
+    (3 . (1.2))
+    (4 . (1.1))
+    (5 . (1.1))
+    (6 . (1.0))
+    (7 . (1.0)))))
 #+end_src
 
 *** Standard themes
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-  (use-package standard-themes
-    :ensure t
-    :init
-    (setopt standard-themes-mixed-fonts nil
-            standard-themes-variable-pitch-ui nil
-            standard-themes-bold-constructs nil
-            standard-themes-italic-constructs nil
-            standard-themes-common-palette-overrides '((fringe unspecified))
-            standard-themes-headings '((0 . (1.5))
-                                       (1 . (1.4))
-                                       (2 . (1.3))
-                                       (3 . (1.2))
-                                       (4 . (1.1))
-                                       (5 . (1.1))
-                                       (6 . (1.0))
-                                       (7 . (1.0)))))
+(use-package
+ standard-themes
+ :ensure t
+ :init
+ (setopt
+  standard-themes-mixed-fonts nil
+  standard-themes-variable-pitch-ui nil
+  standard-themes-bold-constructs nil
+  standard-themes-italic-constructs nil
+  standard-themes-common-palette-overrides '((fringe unspecified))
+  standard-themes-headings
+  '((0 . (1.5))
+    (1 . (1.4))
+    (2 . (1.3))
+    (3 . (1.2))
+    (4 . (1.1))
+    (5 . (1.1))
+    (6 . (1.0))
+    (7 . (1.0)))))
 #+end_src
 
 *** Doric themes
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-  (use-package doric-themes
-    :ensure t
-    :custom
-    (doric-themes-toggle '(doric-light doric-obsidian)))
+(use-package
+ doric-themes
+ :ensure t
+ :custom (doric-themes-toggle '(doric-light doric-obsidian)))
 #+end_src
 
 *** Doom
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-  (use-package doom-themes
-    :ensure t
-    :init
-    (defun my-rose-pine ()
-      "Clear previous theme and load rosé pine."
-      (interactive)
-      (my-load-theme 'doom-rose-pine))
+(use-package
+ doom-themes
+ :ensure t
+ :init
+ (defun my-rose-pine ()
+   "Clear previous theme and load rosé pine."
+   (interactive)
+   (my-load-theme 'doom-rose-pine))
 
-    (defun my-rose-pine-dawn ()
-      "Clear previous theme and load rosé pine dawn."
-      (interactive)
-      (my-load-theme 'doom-rose-pine-dawn))
+ (defun my-rose-pine-dawn ()
+   "Clear previous theme and load rosé pine dawn."
+   (interactive)
+   (my-load-theme 'doom-rose-pine-dawn))
 
-    (defun my-doom-one ()
-      "Clear previous theme and load doom-one."
-      (interactive)
-      (my-load-theme 'doom-one))
+ (defun my-doom-one ()
+   "Clear previous theme and load doom-one."
+   (interactive)
+   (my-load-theme 'doom-one))
 
-    (defun my-gruvbox ()
-      "Clear previous theme and load gruvbox."
-      (interactive)
-      (my-load-theme 'doom-gruvbox))
+ (defun my-gruvbox ()
+   "Clear previous theme and load gruvbox."
+   (interactive)
+   (my-load-theme 'doom-gruvbox))
 
-    (defun my-gruvbox-light ()
-      "Clear previous theme and load gruvbox."
-      (interactive)
-      (my-load-theme 'doom-gruvbox-light))
+ (defun my-gruvbox-light ()
+   "Clear previous theme and load gruvbox."
+   (interactive)
+   (my-load-theme 'doom-gruvbox-light))
 
-    (defun my-toggle-rose-pine ()
-      "Toggle between light and dark Rosé Pine themes."
-      (interactive)
-      (if (eq (nth 0 custom-enabled-themes) 'doom-rose-pine)
-          (my-rose-pine-dawn)
-        (my-rose-pine)))
+ (defun my-toggle-rose-pine ()
+   "Toggle between light and dark Rosé Pine themes."
+   (interactive)
+   (if (eq (nth 0 custom-enabled-themes) 'doom-rose-pine)
+       (my-rose-pine-dawn)
+     (my-rose-pine)))
 
-    (defun my-toggle-gruvbox ()
-      "Toggle between light and dark Gruvbox themes."
-      (interactive)
-      (if (eq (nth 0 custom-enabled-themes) 'doom-gruvbox)
-          (my-gruvbox-light)
-        (my-gruvbox)))
+ (defun my-toggle-gruvbox ()
+   "Toggle between light and dark Gruvbox themes."
+   (interactive)
+   (if (eq (nth 0 custom-enabled-themes) 'doom-gruvbox)
+       (my-gruvbox-light)
+     (my-gruvbox)))
 
-    (defun my-toggle-tomorrow ()
-      "Toggle between light and dark Tomorrow themes."
-      (interactive)
-      (if (eq (nth 0 custom-enabled-themes) 'doom-tomorrow-night)
-          (my-load-theme 'doom-tomorrow-day)
-        (my-load-theme 'doom-tomorrow-night)))
-    :custom
-    (doom-themes-enable-bold t)
-    (doom-themes-enable-italic t)
-    :config
-    (doom-themes-org-config))
+ (defun my-toggle-tomorrow ()
+   "Toggle between light and dark Tomorrow themes."
+   (interactive)
+   (if (eq (nth 0 custom-enabled-themes) 'doom-tomorrow-night)
+       (my-load-theme 'doom-tomorrow-day)
+     (my-load-theme 'doom-tomorrow-night)))
+ :custom (doom-themes-enable-bold t) (doom-themes-enable-italic t)
+ :config (doom-themes-org-config))
 #+end_src
 
 *** Naysayer
@@ -1300,13 +1369,14 @@ Display number of matches in modeline when searching
 Based on theme from Jonathan Blow's livestreams.
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-   (use-package naysayer-theme
-     :ensure t
-     :init
-     (defun my-naysayer-theme ()
-       "Clear previous theme and load naysayer."
-       (interactive)
-       (my-load-theme 'naysayer)))
+(use-package
+ naysayer-theme
+ :ensure t
+ :init
+ (defun my-naysayer-theme ()
+   "Clear previous theme and load naysayer."
+   (interactive)
+   (my-load-theme 'naysayer)))
 #+end_src
 
 *** Acme theme
@@ -1314,72 +1384,64 @@ Based on theme from Jonathan Blow's livestreams.
 Inspired by Plan 9 Acme & Sam.
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-   (use-package acme-theme
-     :ensure t
-     :init
-     (setq acme-theme-black-fg t)
+(use-package
+ acme-theme
+ :ensure t
+ :init (setq acme-theme-black-fg t)
 
-     (defun my-acme-theme ()
-       "Clear previous theme and load acme."
-       (interactive)
-       (my-load-theme 'acme)))
+ (defun my-acme-theme ()
+   "Clear previous theme and load acme."
+   (interactive)
+   (my-load-theme 'acme)))
 #+end_src
 
 *** Kaolin
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-  (use-package kaolin-themes
-    :ensure t
-    :init
-    (defun my-kaolin-dark ()
-      "Clear previous theme and load kaolin dark."
-      (interactive)
-      (my-load-theme 'kaolin-dark))
+(use-package
+ kaolin-themes
+ :ensure t
+ :init
+ (defun my-kaolin-dark ()
+   "Clear previous theme and load kaolin dark."
+   (interactive)
+   (my-load-theme 'kaolin-dark))
 
-    (defun my-kaolin-light ()
-      "Clear previous theme and load kaolin light."
-      (interactive)
-      (my-load-theme 'kaolin-light))
+ (defun my-kaolin-light ()
+   "Clear previous theme and load kaolin light."
+   (interactive)
+   (my-load-theme 'kaolin-light))
 
-    (defun my-kaolin-mono-dark ()
-      "Clear previous theme and load kaolin mono dark."
-      (interactive)
-      (my-load-theme 'kaolin-mono-dark))
+ (defun my-kaolin-mono-dark ()
+   "Clear previous theme and load kaolin mono dark."
+   (interactive)
+   (my-load-theme 'kaolin-mono-dark))
 
-    (defun my-kaolin-mono-light ()
-      "Clear previous theme and load kaolin mono light."
-      (interactive)
-      (my-load-theme 'kaolin-mono-light)))
+ (defun my-kaolin-mono-light ()
+   "Clear previous theme and load kaolin mono light."
+   (interactive)
+   (my-load-theme 'kaolin-mono-light)))
 #+end_src
 
 *** Solarized
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-  (defun my-toggle-solarized ()
-    "Toggle between light and dark solarized themes."
-    (interactive)
-    (if (eq (nth 0 custom-enabled-themes) 'doom-solarized-dark)
-        (my-solarized-light)
-      (my-solarized-dark)))
+(defun my-toggle-solarized ()
+  "Toggle between light and dark solarized themes."
+  (interactive)
+  (if (eq (nth 0 custom-enabled-themes) 'doom-solarized-dark)
+      (my-solarized-light)
+    (my-solarized-dark)))
 
-  (defun my-solarized-light ()
-    "Clear previous theme and load solarized light"
-    (interactive)
-    (my-load-theme 'doom-solarized-light))
+(defun my-solarized-light ()
+  "Clear previous theme and load solarized light"
+  (interactive)
+  (my-load-theme 'doom-solarized-light))
 
-  (defun my-solarized-dark ()
-    "Clear previous theme and load solarized dark"
-    (interactive)
-    (my-load-theme 'doom-solarized-dark))
-#+end_src
-
-*** Remember latest theme
-Doesnt work
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-  (use-package remember-last-theme
-    :ensure t
-    :after (acme-theme kaolin-themes naysayer-theme doom-themes doric-themes ef-themes standard-themes modus-themes)
-    :config (remember-last-theme-with-file-enable "remember-last-theme"))
+(defun my-solarized-dark ()
+  "Clear previous theme and load solarized dark"
+  (interactive)
+  (my-load-theme 'doom-solarized-dark))
 #+end_src
 
 *** Provide module
@@ -1477,40 +1539,40 @@ Doesnt work
 
 ** ~pulsar.el~
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-pulsar.el" :mkdirp yes
-  ;;;; Pulsar
-  ;; Read the pulsar manual: <https://protesilaos.com/emacs/pulsar>.
-  (use-package
-    pulsar
-    :ensure t
-    :config
-    (setq
-     pulsar-pulse t
-     pulsar-delay 0.055
-     pulsar-iterations 5
-     pulsar-face 'pulsar-green
-     pulsar-region-face 'pulsar-cyan
-     pulsar-highlight-face 'pulsar-magenta)
-    ;; Pulse after `pulsar-pulse-region-functions'.
-    (setq pulsar-pulse-region-functions
-  	pulsar-pulse-region-common-functions)
-    :hook
-    ;; There are convenience functions/commands which pulse the line using
-    ;; a specific colour: `pulsar-pulse-line-red' is one of them.
-    ((next-error
-      .
-      (pulsar-pulse-line-red pulsar-recenter-top pulsar-reveal-entry))
-     (minibuffer-setup . pulsar-pulse-line-red)
-     ;; Pulse right after the use of `pulsar-pulse-functions' and
-     ;; `pulsar-pulse-region-functions'.  The default value of the
-     ;; former user option is comprehensive.
-     (after-init . pulsar-global-mode))
-    :bind
-    ;; pulsar does not define any key bindings.  This is just my personal
-    ;; preference.  Remember to read the manual on the matter.  Evaluate:
-    ;;
-    ;; (info "(elisp) Key Binding Conventions")
-    (("C-x l" . pulsar-pulse-line) ; override `count-lines-page'
-     ("C-x L" . pulsar-highlight-dwim))) ; or use `pulsar-highlight-line'
+;;;; Pulsar
+;; Read the pulsar manual: <https://protesilaos.com/emacs/pulsar>.
+(use-package
+ pulsar
+ :ensure t
+ :config
+ (setq
+  pulsar-pulse t
+  pulsar-delay 0.055
+  pulsar-iterations 5
+  pulsar-face 'pulsar-green
+  pulsar-region-face 'pulsar-cyan
+  pulsar-highlight-face 'pulsar-magenta)
+ ;; Pulse after `pulsar-pulse-region-functions'.
+ (setq pulsar-pulse-region-functions
+       pulsar-pulse-region-common-functions)
+ :hook
+ ;; There are convenience functions/commands which pulse the line using
+ ;; a specific colour: `pulsar-pulse-line-red' is one of them.
+ ((next-error
+   .
+   (pulsar-pulse-line-red pulsar-recenter-top pulsar-reveal-entry))
+  (minibuffer-setup . pulsar-pulse-line-red)
+  ;; Pulse right after the use of `pulsar-pulse-functions' and
+  ;; `pulsar-pulse-region-functions'.  The default value of the
+  ;; former user option is comprehensive.
+  (after-init . pulsar-global-mode))
+ :bind
+ ;; pulsar does not define any key bindings.  This is just my personal
+ ;; preference.  Remember to read the manual on the matter.  Evaluate:
+ ;;
+ ;; (info "(elisp) Key Binding Conventions")
+ (("C-x l" . pulsar-pulse-line) ; override `count-lines-page'
+  ("C-x L" . pulsar-highlight-dwim))) ; or use `pulsar-highlight-line'
 #+end_src
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-pulsar.el" :mkdirp yes
@@ -1544,14 +1606,16 @@ Doesnt work
   (if (getenv "WSL_DISTRO_NAME")
       (setq
        my-font-height 200
-       my-extra-small-font-height 100
+       my-xxs-font-height 100
+       my-xs-font-height 125
        my-small-font-height 150
        my-medium-font-height 250
        my-large-font-height 350
        my-presentation-font-height 650)
     (setq
      my-font-height 200
-     my-extra-small-font-height 100
+     my-xxs-font-height 100
+     my-xs-font-height 125
      my-small-font-height 150
      my-medium-font-height 250
      my-large-font-height 350
@@ -1560,7 +1624,8 @@ Doesnt work
 (if (eq system-type 'darwin)
     (setq
      my-font-height 200
-     my-extra-small-font-height 100
+     my-xxs-font-height 100
+     my-xs-font-height 125
      my-small-font-height 150
      my-medium-font-height 250
      my-large-font-height 350
@@ -1581,7 +1646,8 @@ Doesnt work
  (fontaine-latest-state-file
   (locate-user-emacs-file "fontaine-latest-state.eld"))
  (fontaine-presets
-  `((extra-small :default-height ,my-extra-small-font-height)
+  `((xxs :default-height ,my-xxs-font-height)
+    (xs :default-height ,my-xs-font-height)
     (small :default-height ,my-small-font-height)
     (regular) ; like this it uses all the fallback values and is named
     ; `regular'
@@ -1681,36 +1747,40 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
 
 *** use and config nerd-icons
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-nerd-icons.el" :mkdirp yes
-  (use-package nerd-icons
-    :ensure t
-    :if (display-graphic-p)
-    :config
-    (setq nerd-icons-font-family "Symbols Nerd Font"))
+(use-package
+ nerd-icons
+ :ensure t
+ :if (display-graphic-p)
+ :config (setq nerd-icons-font-family "Symbols Nerd Font"))
 #+end_src
 
 *** use and configure nerd-icons-dired
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-nerd-icons.el" :mkdirp yes
-  (use-package nerd-icons-dired
-    :ensure t
-    :after nerd-icons
-    :hook (dired-mode . nerd-icons-dired-mode))
+(use-package
+ nerd-icons-dired
+ :ensure t
+ :after nerd-icons
+ :hook (dired-mode . nerd-icons-dired-mode))
 #+end_src
 
 *** use and configure nerd-icons-ibuffer
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-nerd-icons.el" :mkdirp yes
-  (use-package nerd-icons-ibuffer
-    :ensure t
-    :after nerd-icons
-    :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
+(use-package
+ nerd-icons-ibuffer
+ :ensure t
+ :after nerd-icons
+ :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
 #+end_src
 
 *** use and configure nerd-icons-corfu
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-nerd-icons.el" :mkdirp yes
-(use-package nerd-icons-corfu
-  :ensure t
-  :after nerd-icons
-  :after corfu
-  :config (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+(use-package
+ nerd-icons-corfu
+ :ensure t
+ :after nerd-icons
+ :after corfu
+ :config
+ (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 #+end_src
 
 *** provide module
@@ -2171,15 +2241,15 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
 
 *** flycheck use and config
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-linter.el" :mkdirp yes
-  (use-package
-    flycheck
-    :ensure t
-    :init (global-flycheck-mode)
-    :bind
-    (:map
-     flycheck-mode-map
-     ("M-n" . flycheck-next-error) ; optional but recommended error navigation
-     ("M-p" . flycheck-previous-error)))
+(use-package
+ flycheck
+ :ensure t
+ :init (global-flycheck-mode)
+ :bind
+ (:map
+  flycheck-mode-map
+  ("M-n" . flycheck-next-error) ; optional but recommended error navigation
+  ("M-p" . flycheck-previous-error)))
 #+end_src
 
 *** editorconfig use and config
@@ -2191,8 +2261,7 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
 
 *** provide module
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-linter.el" :mkdirp yes
-
-  (provide 'tony-emacs-linter)
+(provide 'tony-emacs-linter)
 #+end_src
 
 ** ~prettier.el~
@@ -2279,51 +2348,6 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
              (corfu-mode))
            nil t))
 (provide 'tony-emacs-completion)
-#+end_src
-
-** ~languages.el~
-
-*** shell
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
-  (use-package
-    sh-mode
-    :ensure nil ;; built in
-    :mode "\\.zsh\\'" "\\.sh\\'")
-#+end_src
-
-*** lisp
-
-**** aggressive-indent
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
-  (use-package aggressive-indent
-    :ensure t
-    :hook '(clojure-mode
-            elisp-mode
-            emacs-lisp-mode
-            lisp-mode
-            common-lisp-mode
-            scheme-mode))
-#+end_src
-
-**** smart-parens
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
-(use-package
- smartparens
- :ensure t
- :hook
- (clojure-mode . smartparens-mode)
- (scheme-mode . smartparens-mode)
- :config (require 'smartparens-config))
-#+end_src
-
-**** geiser
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
-
-#+end_src
-
-*** provide module
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
-(provide 'tony-emacs-languages)
 #+end_src
 
 ** ~lsp-mode.el~

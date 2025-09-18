@@ -20,14 +20,16 @@
   (if (getenv "WSL_DISTRO_NAME")
       (setq
        my-font-height 200
-       my-extra-small-font-height 100
+       my-xxs-font-height 100
+       my-xs-font-height 125
        my-small-font-height 150
        my-medium-font-height 250
        my-large-font-height 350
        my-presentation-font-height 650)
     (setq
      my-font-height 200
-     my-extra-small-font-height 100
+     my-xxs-font-height 100
+     my-xs-font-height 125
      my-small-font-height 150
      my-medium-font-height 250
      my-large-font-height 350
@@ -36,7 +38,8 @@
 (if (eq system-type 'darwin)
     (setq
      my-font-height 200
-     my-extra-small-font-height 100
+     my-xxs-font-height 100
+     my-xs-font-height 125
      my-small-font-height 150
      my-medium-font-height 250
      my-large-font-height 350
@@ -55,7 +58,8 @@
  (fontaine-latest-state-file
   (locate-user-emacs-file "fontaine-latest-state.eld"))
  (fontaine-presets
-  `((extra-small :default-height ,my-extra-small-font-height)
+  `((xxs :default-height ,my-xxs-font-height)
+    (xs :default-height ,my-xs-font-height)
     (small :default-height ,my-small-font-height)
     (regular) ; like this it uses all the fallback values and is named
     ; `regular'
