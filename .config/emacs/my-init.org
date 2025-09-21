@@ -1,4 +1,5 @@
 
+#+title: My Literate Emacs Config
 #+property: header-args
 #+startup: content
 
@@ -311,44 +312,46 @@ in tony-lisp / tony-emacs-modules directories throughout this literate
 config
 
 #+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
-(mapc
- (lambda (string)
-   (add-to-list 'load-path (locate-user-emacs-file string)))
- '("tony-lisp" "tony-emacs-modules"))
+  (mapc
+   (lambda (string)
+     (add-to-list 'load-path (locate-user-emacs-file string)))
+   '("tony-lisp" "tony-emacs-modules"))
 
-(require 'tony-emacs-miscellaneous)
-(require 'tony-emacs-org)
-(require 'tony-emacs-project)
-;;(require 'tony-emacs-treemacs)
-(require 'tony-emacs-pulsar)
-(require 'tony-emacs-fonts)
-(require 'tony-emacs-nerd-icons)
-(require 'tony-emacs-tweakers)
-(require 'tony-emacs-meow)
-(require 'tony-emacs-which-key)
-;;(require 'tony-emacs-prot-themes)
-;;(require 'tony-emacs-doom-themes)
-;;(require 'tony-emacs-solaire-mode)
-(require 'tony-emacs-themes)
-(require 'tony-emacs-doom-modeline)
-;(require 'tony-emacs-textsize)
-(require 'tony-emacs-vertico)
-(require 'tony-emacs-marginalia)
-(require 'tony-emacs-orderless)
-(require 'tony-emacs-consult)
-(require 'tony-emacs-diff-hl)
-(require 'tony-emacs-magit)
-(require 'tony-emacs-blamer)
-(require 'tony-emacs-denote)
-(require 'tony-emacs-completion)
-(require 'tony-emacs-linter)
-(require 'tony-emacs-prettier)
-(require 'tony-emacs-treesit)
-(require 'tony-emacs-languages)
-(require 'tony-emacs-lsp-mode)
-;;(require 'tony-emacs-lsp-treemacs)
-(require 'tony-emacs-ngx)
-(require 'tony-emacs-lsp-biome)
+  (require 'tony-emacs-miscellaneous)
+  (require 'tony-emacs-org)
+  (require 'tony-emacs-project)
+  ;;(require 'tony-emacs-treemacs)
+  (require 'tony-emacs-pulsar)
+  (require 'tony-emacs-fonts)
+  (require 'tony-emacs-nerd-icons)
+  (require 'tony-emacs-tweakers)
+  (require 'tony-emacs-meow)
+  (require 'tony-emacs-which-key)
+  ;;(require 'tony-emacs-prot-themes)
+  ;;(require 'tony-emacs-doom-themes)
+  ;;(require 'tony-emacs-solaire-mode)
+  (require 'tony-emacs-themes)
+  (require 'tony-emacs-doom-modeline)
+  ;(require 'tony-emacs-textsize)
+  (require 'tony-emacs-vertico)
+  (require 'tony-emacs-marginalia)
+  (require 'tony-emacs-orderless)
+  (require 'tony-emacs-consult)
+  (require 'tony-emacs-diff-hl)
+  (require 'tony-emacs-magit)
+  (require 'tony-emacs-blamer)
+  (require 'tony-emacs-denote)
+  (require 'tony-emacs-completion)
+  (require 'tony-emacs-spellchecker)
+  (require 'tony-emacs-linter)
+  (require 'tony-emacs-prettier)
+  (require 'tony-emacs-treesit)
+  (require 'tony-emacs-languages)
+  (require 'tony-emacs-lsp-mode)
+  ;;(require 'tony-emacs-lsp-treemacs)
+  (require 'tony-emacs-ngx)
+  (require 'tony-emacs-lsp-biome)
+  (require 'tony-emacs-info-manuals)
 #+end_src
 
 * Packages
@@ -680,7 +683,19 @@ config
 
 **** racket
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
-(use-package racket-mode :ensure t)
+(use-package
+ racket-mode
+ :ensure t)
+#+end_src
+
+**** paredit
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
+(use-package
+ paredit
+ :ensure t
+ :hook
+ ;; Use the :hook keyword for modern use-package syntax
+ (racket-mode-hook . paredit-mode))
 #+end_src
 
 *** provide module
@@ -2264,6 +2279,30 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
 (provide 'tony-emacs-linter)
 #+end_src
 
+** ~spellchecker.el~
+- Arch dependencies: 
+#+begin_src sh
+  pacman -S hunspell hunspell-en_us pkgconf
+#+end_src
+-macOS dependencies:
+#+begin_src sh
+  brew install enchant hunspell
+#+end_src
+
+*** use and configure jinx
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-spellchecker.el" :mkdirp yes
+(use-package
+ jinx
+ :ensure t
+ :hook (emacs-startup . global-jinx-mode)
+ :bind (("M-$" . jinx-correct) ("C-M-$" . jinx-languages)))
+#+end_src
+
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-spellchecker.el" :mkdirp yes
+(provide 'tony-emacs-spellchecker)
+#+end_src
+
 ** ~prettier.el~
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-prettier.el" :mkdirp yes
 ;; auto-format different source code files extremely intelligently
@@ -2637,3 +2676,13 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
 ;;; tony-emacs-ngx.el ends here
 #+end_src
 
+** ~info-manuals.el~
+
+*** use and configure sicp
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-info-manuals.el" :mkdirp yes
+(use-package sicp :ensure t)
+#+end_src
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-info-manuals.el" :mkdirp yes
+(provide 'tony-emacs-info-manuals)
+#+end_src

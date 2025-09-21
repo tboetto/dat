@@ -19,6 +19,15 @@
  (scheme-mode . smartparens-mode)
  :config (require 'smartparens-config))
 
-(use-package racket-mode :ensure t)
+(use-package
+ racket-mode
+ :ensure t)
+
+(use-package
+ paredit
+ :ensure t
+ :hook
+ ;; Use the :hook keyword for modern use-package syntax
+ (racket-mode-hook . paredit-mode))
 
 (provide 'tony-emacs-languages)

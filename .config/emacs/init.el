@@ -183,6 +183,7 @@
 (require 'tony-emacs-blamer)
 (require 'tony-emacs-denote)
 (require 'tony-emacs-completion)
+(require 'tony-emacs-spellchecker)
 (require 'tony-emacs-linter)
 (require 'tony-emacs-prettier)
 (require 'tony-emacs-treesit)
@@ -191,3 +192,4 @@
 ;;(require 'tony-emacs-lsp-treemacs)
 (require 'tony-emacs-ngx)
 (require 'tony-emacs-lsp-biome)
+(require 'tony-emacs-info-manuals)
