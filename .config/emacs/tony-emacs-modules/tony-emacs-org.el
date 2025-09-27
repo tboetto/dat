@@ -5,7 +5,10 @@
  (setopt org-confirm-babel-evaluate nil)
  (setq org-directory (expand-file-name "~/Documents/org/"))
  (setq org-imenu-depth 7)
- :config (setq org-startup-indented t))
+ :config
+ (setq org-startup-indented t)
+ (add-to-list 'org-src-lang-modes '("typescript" . typescript-ts))
+ )
 
 (use-package
  org-agenda
