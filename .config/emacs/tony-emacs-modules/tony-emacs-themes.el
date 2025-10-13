@@ -2,46 +2,6 @@
 
 (setq custom-safe-themes t)
 
-(defun my-clear-theme ()
-  "Clear current theme"
-  (interactive)
-  (mapc #'disable-theme custom-enabled-themes))
-
-(defun my-load-theme (&optional theme)
-  "Load THEME after clearing the previous one.
-  If called interactively, prompt for a theme name. If THEME is provided
-  as an argument, load that theme directly."
-  (interactive)
-  (my-clear-theme)
-  (if theme
-      (load-theme theme t)
-    (call-interactively 'load-theme)))
-
-;; (setq my-catppuccin-flavors (my-alist-keys catppuccin-flavor-alist))
-
-;; (defun my-catppuccin-theme (flavor)
-;;   "Clear previous theme and load selected catppuccin FLAVOR."
-;;   (interactive
-;;    (list (intern (completing-read "Choose a flavor: "
-;;                                   my-catppuccin-flavors))))
-;;   (my-clear-theme)
-;;   (catppuccin-load-flavor flavor))
-
-(defun my-load-theme-in-all-frames (frame)
-  "Load the current theme in the newly created FRAME.
-  When loaded after a new frame has been created with emacsclient, it
-  ensures that the theme is properly applied. In particular this solves a
-  problem with the menu bar not using the proper theme if the server was
-  loaded with a different theme."
-  (with-selected-frame frame
-    (enable-theme (car custom-enabled-themes))
-    (when (string-prefix-p
-           "ef-" (symbol-name (car custom-enabled-themes)))
-      (ef-themes-load-theme (car custom-enabled-themes)))
-    (when (string-prefix-p
-           "modus-" (symbol-name (car custom-enabled-themes)))
-      (modus-themes-load-theme (car custom-enabled-themes)))))
-
 (add-hook 'after-make-frame-functions #'my-load-theme-in-all-frames)
 
 (use-package
@@ -224,5 +184,12 @@
   "Clear previous theme and load solarized dark"
   (interactive)
   (my-load-theme 'doom-solarized-dark))
+
+(use-package remember-last-theme
+  :after (acme-theme kaolin-themes naysayer-theme doom-themes doric-themes standard-themes ef-themes modus-themes)
+  :config
+  (remember-theme-load)
+  (add-hook 'kill-emacs-hook 'remember-theme-save)
+  )
 
 (provide 'tony-emacs-themes)

@@ -5,12 +5,20 @@
  (setopt org-confirm-babel-evaluate nil)
  (setq org-directory (expand-file-name "~/Documents/org/"))
  (setq org-imenu-depth 7)
+ (setq org-log-done 'time)
+ (setq org-log-into-drawer t)
  :config (setq org-startup-indented t))
 
 (use-package
- org-agenda
- :ensure nil
- :config (setq org-agenda-files (list org-directory)))
+  org-agenda
+  :ensure nil
+  :bind
+  (("C-c A" . org-agenda))
+  :config (setq org-agenda-files (list org-directory)))
+
+;; (use-package org-alert
+;;   :ensure t
+;;   :hook (org-agenda-mode . org-alert-mode))
 
 (use-package
  org-modern
@@ -19,7 +27,9 @@
  :config
  (setq
   org-modern-keyword nil
-  org-modern-block-name nil))
+  org-modern-block-name nil
+  org-modern-timestamp nil
+  ))
 
 (use-package org-modern-indent
   :ensure (:host github :repo "jdtsmith/org-modern-indent")
@@ -30,6 +40,6 @@
 (setq org-appear-trigger 'always)
 
 (use-package ob-racket
-  :ensure (:host github :repo "hasu/emacs-ob-racket"))
+  :ensure (:host github :repo "DEADB17/ob-racket"))
 
 (provide 'tony-emacs-org)

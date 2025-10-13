@@ -1,14 +1,25 @@
-#!/bin/sh
-TMPFILE="$(mktemp)"
-sudo true
-rate-mirrors --save=$TMPFILE artix
-grep -q "NO RESULTS TO RE-TEST" $TMPFILE
-if [ $? -eq 1 ]; then
-	echo "RESULTS HERE"
-	sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist-backup
-	sudo cp $TMPFILE ~/.local/artixinstall/mirrorlist
-	sudo mv $TMPFILE /etc/pacman.d/mirrorlist
-	sudo chown tony ~/.local/artixinstall/mirrorlist
+#!/bin/bash
+
+# Create a temporary file and ensure it is cleaned up on exit.
+TMPFILE=$(mktemp)
+trap 'rm -f -- "$TMPFILE"' EXIT
+
+# Execute rate-mirrors and check its exit status.
+if rate-mirrors --save="$TMPFILE" artix --fetch-mirrors-timeout=120000; then
+    # Check if the generated temporary file is not empty.
+    if [[ -s "$TMPFILE" ]]; then
+        echo "Successfully generated new Artix mirror list."
+        # Backup the old mirrorlist and replace it with the new one.
+        sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist-backup
+        sudo mv "$TMPFILE" /etc/pacman.d/mirrorlist
+        
+        # Optional: Save a copy to your user's directory.
+        cp /etc/pacman.d/mirrorlist ~/.local/artixinstall/mirrorlist
+        sudo chown tony ~/.local/artixinstall/mirrorlist
+    else
+        echo "rate-mirrors ran successfully but produced an empty file. Keeping old mirrorlist."
+    fi
 else
-	echo "NO RESULTS TO RE-TEST"
+    # rate-mirrors command failed.
+    echo "rate-mirrors failed to execute. Keeping old mirrorlist."
 fi

@@ -683,9 +683,14 @@ config
 
 **** racket
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
-(use-package
- racket-mode
- :ensure t)
+  (setq racket-program "/usr/bin/racket")
+  (setq org-babel-debug t)
+
+  (use-package
+   racket-mode
+   :after org
+   :ensure t
+   :config (add-to-list 'org-babel-load-languages '(racket . t)))
 #+end_src
 
 **** paredit
@@ -705,35 +710,53 @@ config
 
 ** ~org.el~
 *** org mode setup
+Setup org mode basics:
+- log done with time
+- also logged status updates should be foldable and separate from rest
+  of header content
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
-(use-package
- org
- :ensure nil
- :init
- (setopt org-confirm-babel-evaluate nil)
- (setq org-directory (expand-file-name "~/Documents/org/"))
- (setq org-imenu-depth 7)
- :config (setq org-startup-indented t))
+  (use-package
+   org
+   :ensure nil
+   :init
+   (setopt org-confirm-babel-evaluate nil)
+   (setq org-directory (expand-file-name "~/Documents/org/"))
+   (setq org-imenu-depth 7)
+   (setq org-log-done 'time)
+   (setq org-log-into-drawer t)
+   :config (setq org-startup-indented t))
 #+end_src
 
 *** org agenda set up
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
-(use-package
- org-agenda
- :ensure nil
- :config (setq org-agenda-files (list org-directory)))
+  (use-package
+    org-agenda
+    :ensure nil
+    :bind
+    (("C-c A" . org-agenda))
+    :config (setq org-agenda-files (list org-directory)))
 #+end_src
+
+*** org alert setup
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
+  ;; (use-package org-alert
+  ;;   :ensure t
+  ;;   :hook (org-agenda-mode . org-alert-mode))
+#+end_src
+
 
 *** org modern set up
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
-(use-package
- org-modern
- :ensure t
- :hook (org-mode . org-modern-mode)
- :config
- (setq
-  org-modern-keyword nil
-  org-modern-block-name nil))
+  (use-package
+   org-modern
+   :ensure t
+   :hook (org-mode . org-modern-mode)
+   :config
+   (setq
+    org-modern-keyword nil
+    org-modern-block-name nil
+    org-modern-timestamp nil
+    ))
 #+end_src
 
 *** org-modern-indent
@@ -755,7 +778,7 @@ config
 **** racket ob-babel 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-org.el" :mkdirp yes
 (use-package ob-racket
-  :ensure (:host github :repo "hasu/emacs-ob-racket"))
+  :ensure (:host github :repo "DEADB17/ob-racket"))
 #+end_src
 
 *** provide module
@@ -1184,60 +1207,15 @@ Display number of matches in modeline when searching
 (setopt custom-theme-directory "~/.config/emacs/themes/")
 #+end_src
 *** Set custom themes safe
+
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
 (setq custom-safe-themes t)
 #+end_src
-
-*** Functions
-
-#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-(defun my-clear-theme ()
-  "Clear current theme"
-  (interactive)
-  (mapc #'disable-theme custom-enabled-themes))
-
-(defun my-load-theme (&optional theme)
-  "Load THEME after clearing the previous one.
-  If called interactively, prompt for a theme name. If THEME is provided
-  as an argument, load that theme directly."
-  (interactive)
-  (my-clear-theme)
-  (if theme
-      (load-theme theme t)
-    (call-interactively 'load-theme)))
-
-;; (setq my-catppuccin-flavors (my-alist-keys catppuccin-flavor-alist))
-
-;; (defun my-catppuccin-theme (flavor)
-;;   "Clear previous theme and load selected catppuccin FLAVOR."
-;;   (interactive
-;;    (list (intern (completing-read "Choose a flavor: "
-;;                                   my-catppuccin-flavors))))
-;;   (my-clear-theme)
-;;   (catppuccin-load-flavor flavor))
-
-(defun my-load-theme-in-all-frames (frame)
-  "Load the current theme in the newly created FRAME.
-  When loaded after a new frame has been created with emacsclient, it
-  ensures that the theme is properly applied. In particular this solves a
-  problem with the menu bar not using the proper theme if the server was
-  loaded with a different theme."
-  (with-selected-frame frame
-    (enable-theme (car custom-enabled-themes))
-    (when (string-prefix-p
-           "ef-" (symbol-name (car custom-enabled-themes)))
-      (ef-themes-load-theme (car custom-enabled-themes)))
-    (when (string-prefix-p
-           "modus-" (symbol-name (car custom-enabled-themes)))
-      (modus-themes-load-theme (car custom-enabled-themes)))))
-#+end_src
-
 *** Hooks
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
 (add-hook 'after-make-frame-functions #'my-load-theme-in-all-frames)
 #+end_src
-
 *** Modus themes
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
@@ -1441,22 +1419,32 @@ Inspired by Plan 9 Acme & Sam.
 *** Solarized
 
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
-(defun my-toggle-solarized ()
-  "Toggle between light and dark solarized themes."
-  (interactive)
-  (if (eq (nth 0 custom-enabled-themes) 'doom-solarized-dark)
-      (my-solarized-light)
-    (my-solarized-dark)))
+  (defun my-toggle-solarized ()
+    "Toggle between light and dark solarized themes."
+    (interactive)
+    (if (eq (nth 0 custom-enabled-themes) 'doom-solarized-dark)
+        (my-solarized-light)
+      (my-solarized-dark)))
 
-(defun my-solarized-light ()
-  "Clear previous theme and load solarized light"
-  (interactive)
-  (my-load-theme 'doom-solarized-light))
+  (defun my-solarized-light ()
+    "Clear previous theme and load solarized light"
+    (interactive)
+    (my-load-theme 'doom-solarized-light))
 
-(defun my-solarized-dark ()
-  "Clear previous theme and load solarized dark"
-  (interactive)
-  (my-load-theme 'doom-solarized-dark))
+  (defun my-solarized-dark ()
+    "Clear previous theme and load solarized dark"
+    (interactive)
+    (my-load-theme 'doom-solarized-dark))
+#+end_src
+
+*** Functions
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-themes.el" :mkdirp yes
+  (use-package remember-last-theme
+    :after (acme-theme kaolin-themes naysayer-theme doom-themes doric-themes standard-themes ef-themes modus-themes)
+    :config
+    (remember-theme-load)
+    (add-hook 'kill-emacs-hook 'remember-theme-save)
+    )
 #+end_src
 
 *** Provide module

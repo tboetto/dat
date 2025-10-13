@@ -19,9 +19,14 @@
  (scheme-mode . smartparens-mode)
  :config (require 'smartparens-config))
 
+(setq racket-program "/usr/bin/racket")
+(setq org-babel-debug t)
+
 (use-package
  racket-mode
- :ensure t)
+ :after org
+ :ensure t
+ :config (add-to-list 'org-babel-load-languages '(racket . t)))
 
 (use-package
  paredit
