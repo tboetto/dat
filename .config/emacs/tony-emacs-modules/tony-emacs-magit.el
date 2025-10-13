@@ -25,7 +25,7 @@
  ;; always in check.  When I exceed the limit, it is for a good
  ;; reason.
  (setq git-commit-style-convention-checks '(non-empty-second-line))
-
+ (define-key magit-mode-map (kbd "x") #'magit-discard)
  (setq magit-diff-refine-hunk t)
 
  ;; Show icons for files in the Magit status and other buffers.

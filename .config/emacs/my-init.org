@@ -223,9 +223,9 @@ C-x + o, C-x + o, C-x + o becomes C-x + o, o, o
 *** Disable backups and lockfiles
 By default emacs tries to lockdown and backup files. I want to be able to open and edit in other editors, and backups are messing with my imports
 #+begin_src emacs-lisp :tangle "init.el" :mkdirp yes
-(setq make-backup-files nil)
-(setq backup-inhibited nil) ;Not sure if needed, given `make-backup-files` above
-(setq create-lockfiles nil)
+  (setq make-backup-files nil)
+  (setq backup-inhibited nil) ;Not sure if needed, given `make-backup-files` above
+  (setq create-lockfiles nil)
 #+end_src
 
 *** Enable buffer line numbers
@@ -724,7 +724,10 @@ Setup org mode basics:
    (setq org-imenu-depth 7)
    (setq org-log-done 'time)
    (setq org-log-into-drawer t)
-   :config (setq org-startup-indented t))
+   :config
+   (setq org-startup-indented t)
+   (add-to-list 'org-src-lang-modes '("typescript" . typescript-ts))
+   )
 #+end_src
 
 *** org agenda set up
@@ -2112,7 +2115,7 @@ x×X .,·°;:¡!¿?`'‘’   ÄAÃÀ TODO
  ;; always in check.  When I exceed the limit, it is for a good
  ;; reason.
  (setq git-commit-style-convention-checks '(non-empty-second-line))
-
+ (define-key magit-mode-map (kbd "x") #'magit-discard)
  (setq magit-diff-refine-hunk t)
 
  ;; Show icons for files in the Magit status and other buffers.
