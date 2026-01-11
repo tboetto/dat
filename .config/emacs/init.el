@@ -159,6 +159,7 @@
  '("tony-lisp" "tony-emacs-modules"))
 
 (require 'tony-emacs-miscellaneous)
+(require 'tony-emacs-visual-fill-column)
 (require 'tony-emacs-org)
 (require 'tony-emacs-project)
 ;;(require 'tony-emacs-treemacs)

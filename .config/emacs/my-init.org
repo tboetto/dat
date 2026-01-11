@@ -318,6 +318,7 @@ config
    '("tony-lisp" "tony-emacs-modules"))
 
   (require 'tony-emacs-miscellaneous)
+  (require 'tony-emacs-visual-fill-column)
   (require 'tony-emacs-org)
   (require 'tony-emacs-project)
   ;;(require 'tony-emacs-treemacs)
@@ -648,7 +649,26 @@ config
    (exec-path-from-shell-initialize)))
 (provide 'tony-emacs-miscellaneous)
 #+end_src
+** ~visual-fill-column.el~
+*** configure and install package
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-visual-fill-column.el" :mkdirp yes
+  (use-package visual-fill-column
+  :ensure t
+  :hook (org-mode . visual-line-mode)
+  :init
+  (setq-default visual-fill-column-center-text t)
+  (setq-default visual-fill-column-width 100)
+  (setq-default visual-fill-column-enable-sensible-window-split t)
 
+  (add-hook 'visual-line-mode-hook #'visual-fill-column-for-vline)
+
+  :config
+  (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust))
+#+end_src
+*** provide module
+#+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-visual-fill-column.el" :mkdirp yes
+ (provide 'tony-emacs-visual-fill-column)
+#+end_src
 ** ~languages.el~
 *** shell
 #+begin_src emacs-lisp :tangle "tony-emacs-modules/tony-emacs-languages.el" :mkdirp yes
